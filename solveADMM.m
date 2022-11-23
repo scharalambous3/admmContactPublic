@@ -1,0 +1,47 @@
+function [Z_k,Delta_k, int_k, violVec, objValueVec, zdeltaViolVec] = solveADMM(Delta0, P0, G0, x_k, params)
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+Delta_k = Delta0;
+Z_k = [];
+P_k = P0;
+G_k = G0;
+
+violVec = [];
+objValueVec =[];
+
+zdeltaViolVec = [];
+
+PVec = [];
+viol = inf;
+for iter = 1:params.maxIters
+    if (viol <= params.epsDyn)
+       fprintf('Exited at iteration %i. Orthogonality violation norm: %d. Rho: %d \n', iter-1, violNorm, rho) 
+       break; 
+    end
+    % For cartpole
+    %G_k(params.dim, params.dim) = 0;
+
+    %For cartpole (?)
+    %P_k(1:params.nx,1) = 0; %Dual should have no effect on initial state
+    
+    [Z_k, objValue] = solveConvexSubproblem(Delta_k, P_k, G_k, x_k, params);
+
+    viol = getOrthogonalityViolation(Z_k, params);
+
+    [Delta_k, int_k] = projectionSubproblem(Z_k, P_k, G_k, params);
+
+    [~, ~, rolloutObjValue] = getRollout(Z_k, x_k, params);
+    objValueVec =[objValueVec, rolloutObjValue];
+
+    zdeltaViolVec = [zdeltaViolVec, norm(vecnorm(Z_k - Delta_k,2,1))];
+
+    P_k = P_k + Z_k - Delta_k;
+    P_k = P_k / params.rhoScale;
+    G_k = G_k * params.rhoScale;
+    fprintf('Iteration %i. Orthogonality violation norm: %d. Rho: %d \n', iter, viol, norm(G_k)) 
+    violVec = [violVec, viol];
+end
+
+
+end
+
