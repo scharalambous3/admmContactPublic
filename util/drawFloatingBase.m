@@ -32,8 +32,8 @@ plot(x, y);
 yline(0.5, '--');
 yline(0.0, '-');
 
-quiver(rc1(1), rc1(2), f(1)/100, f(2)/100)
-quiver(rc2(1), rc2(2), f(3)/100, f(4)/100)
+quiver(rc1(1), rc1(2), f(1), f(2))
+quiver(rc2(1), rc2(2), f(3), f(4))
 
 paddingX=1.25;
 % set(gca,'YTick',[])
