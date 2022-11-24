@@ -1,8 +1,8 @@
 function [params] = getBipedParams()
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
-params.dt = 0.05;
-params.N = 61;
+params.dt = 0.01;
+params.N = 101;
 params.horizon = params.N * params.dt;
 
 params.finalTime = 3.0;
@@ -89,24 +89,24 @@ params.Adelta_int = [zeros(params.orthDim);...  %%Borth * Z + borth >= 0
 params.bdelta = [- params.borth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
 
 %Initialization
-initZ = zeros(params.orthDim, N - 1);
-stanceIndices = 0.5/params.dt;
-reps = (N-1)/stanceIndices;
-trotVec = repelem([1,0], stanceIndices);
-trotDefault = repmat(trotVec,1, reps/2);
-initZ(1, :) = trotDefault(1:N-1);
-initZ(2, :) = 1 - initZ(1, :);
-initZ(:, 1:5) = 1;
-initZ(:, end-5:end) = 1;
-
-X0 = [[linspace(0, xDes(1), N); 0.5 * ones(1,N)];...
-    [(xDes(1)/params.horizon) * ones(1, N); zeros(1,N)];...
-    [linspace(0, xDes(1), N) - 0.25; linspace(0, xDes(1), N) + 0.25]];
-F0 = [initZ(1, :);...
-     9.8 * params.m * initZ(1, :);...
-     initZ(2, :);...
-     9.8 * params.m * initZ(2, :);...
-     1-initZ];
-params.Delta0 = [X0(:,1:end-1); F0];
-params.P0= zeros(params.dim, (params.N-1));
+% initZ = zeros(params.orthDim, params.N - 1);
+% stanceIndices = 0.5/params.dt;
+% reps = (params.N-1)/stanceIndices;
+% trotVec = repelem([1,0], stanceIndices);
+% trotDefault = repmat(trotVec,1, reps/2);
+% initZ(1, :) = trotDefault(1:params.N-1);
+% initZ(2, :) = 1 - initZ(1, :);
+% initZ(:, 1:5) = 1;
+% initZ(:, end-5:end) = 1;
+% 
+% X0 = [[linspace(0, params.xDes(1), params.N); 0.5 * ones(1,params.N)];...
+%     [(params.xDes(1)/params.horizon) * ones(1, params.N); zeros(1,params.N)];...
+%     [linspace(0, params.xDes(1), params.N) - 0.25; linspace(0, params.xDes(1), params.N) + 0.25]];
+% F0 = [initZ(1, :);...
+%      9.8 * params.m * initZ(1, :);...
+%      initZ(2, :);...
+%      9.8 * params.m * initZ(2, :);...
+%      1-initZ];
+% params.Delta0 = [X0(:,1:end-1); F0];
+% params.P0= zeros(params.dim, (params.N-1));
 end

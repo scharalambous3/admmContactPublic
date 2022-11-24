@@ -9,30 +9,30 @@ N = params.N; finalTime = params.finalTime; xDes = params.xDes;
 
 
 %%
-initZ = zeros(params.orthDim, N - 1);
-stanceIndices = 0.5/params.dt;
-reps = (N-1)/stanceIndices;
-trotVec = repelem([1,0], stanceIndices);
-trotDefault = repmat(trotVec,1, reps/2);
-initZ(1, :) = trotDefault(1:N-1);
-initZ(2, :) = 1 - initZ(1, :);
-initZ(:, 1:5) = 1;
-initZ(:, end-5:end) = 1;
-
-X0 = [[linspace(0, xDes(1), N); 0.5 * ones(1,N)];...
-    [(xDes(1)/params.horizon) * ones(1, N); zeros(1,N)];...
-    [linspace(0, xDes(1), N) - 0.25; linspace(0, xDes(1), N) + 0.25]];
-F0 = [initZ(1, :);...
-     9.8 * params.m * initZ(1, :);...
-     initZ(2, :);...
-     9.8 * params.m * initZ(2, :);...
-     1-initZ];
+% initZ = zeros(params.orthDim, N - 1);
+% stanceIndices = 0.5/params.dt;
+% reps = (N-1)/stanceIndices;
+% trotVec = repelem([1,0], stanceIndices);
+% trotDefault = repmat(trotVec,1, reps/2);
+% initZ(1, :) = trotDefault(1:N-1);
+% initZ(2, :) = 1 - initZ(1, :);
+% initZ(:, 1:5) = 1;
+% initZ(:, end-5:end) = 1;
+% 
+% X0 = [[linspace(0, xDes(1), N); 0.5 * ones(1,N)];...
+%     [(xDes(1)/params.horizon) * ones(1, N); zeros(1,N)];...
+%     [linspace(0, xDes(1), N) - 0.25; linspace(0, xDes(1), N) + 0.25]];
+% F0 = [initZ(1, :);...
+%      9.8 * params.m * initZ(1, :);...
+%      initZ(2, :);...
+%      9.8 * params.m * initZ(2, :);...
+%      1-initZ];
 %%
 x_k = params.X0;
 
 dim = params.dim;
-%Delta0=zeros(params.dim , N-1);
-Delta0 = [X0(:,1:end-1); F0];
+Delta0=zeros(params.dim , N-1);
+%Delta0 = [X0(:,1:end-1); F0];
 P0 = zeros(params.dim, (N-1));
 G0 = (params.rho/2) * eye(params.dim, dim);
 

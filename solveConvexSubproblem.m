@@ -3,7 +3,7 @@ function [Z_k, objValue] = solveConvexSubproblem(Delta_k, P_k, G_k, x_k, params)
 %   Detailed explanation goes here
 Q=params.Q; Qf=params.Qf; R=params.R; N=params.N;
 
-ops = sdpsettings('solver','osqp','cachesolvers',1,'allownonconvex',0);%, 'osqp.time_limit', 0.001);
+ops = sdpsettings('solver','osqp','cachesolvers',1,'allownonconvex',0);%, 'osqp.time_limit', 1);
 X = sdpvar(params.nx,N);
 U = sdpvar(params.nu,N - 1);
 
