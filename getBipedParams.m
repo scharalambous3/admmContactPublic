@@ -21,6 +21,8 @@ params.g = [0; -9.8];
 params.m = 50.0;
 params.I = (params.m/12) * (0.75^2 + 0.5^2);
 
+rdotciScaling=1;
+
 %Since dynamics are linear now, Ts doesnt matter. Once I have NL dynamics
 %Ts can be smaller than dt for better integration
 params.Ts = params.dt;
@@ -29,7 +31,7 @@ A(1:2, 3:4) = eye(2); %cdot
 B = zeros(params.nx, params.nu);
 B(3:4, 1:2) = (1/params.m) * eye(2); %f1
 B(3:4, 3:4) = (1/params.m) * eye(2); %f2
-B(5:6, 5:6) = eye(2); %rdocit
+B(5:6, 5:6) = eye(2)/rdotciScaling; %rdocit
 
 d = zeros(params.nx,1);
 d(3:4, 1) = params.g;
@@ -41,14 +43,14 @@ params.d = params.Ts*d;
 params.M=1000;
 
 params.Q = diag([500000, 100000, 100, 100, 0, 0]);
-params.R = diag([0.1, 0.01, 0.1, 0.01, 1, 1]);
+params.R = diag([0.1, 0.01, 0.1, 0.01, 1/rdotciScaling, 1/rdotciScaling]);
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
 params.Qf = params.Q;
 
 %ADMM
 params.epsDyn = 1e-16;
-params.rho = 0.2;
-params.rhoScale = 2;
+params.rho = 2;
+params.rhoScale = 1.2;
 params.maxIters=10;
 
 
@@ -89,24 +91,24 @@ params.Adelta_int = [zeros(params.orthDim);...  %%Borth * Z + borth >= 0
 params.bdelta = [- params.borth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
 
 %Initialization
-initZ = zeros(params.orthDim, N - 1);
+initZ = zeros(params.orthDim, params.N - 1);
 stanceIndices = 0.5/params.dt;
-reps = (N-1)/stanceIndices;
+reps = (params.N-1)/stanceIndices;
 trotVec = repelem([1,0], stanceIndices);
 trotDefault = repmat(trotVec,1, reps/2);
-initZ(1, :) = trotDefault(1:N-1);
+initZ(1, :) = trotDefault(1:params.N-1);
 initZ(2, :) = 1 - initZ(1, :);
 initZ(:, 1:5) = 1;
 initZ(:, end-5:end) = 1;
 
-X0 = [[linspace(0, xDes(1), N); 0.5 * ones(1,N)];...
-    [(xDes(1)/params.horizon) * ones(1, N); zeros(1,N)];...
-    [linspace(0, xDes(1), N) - 0.25; linspace(0, xDes(1), N) + 0.25]];
+X0 = [[linspace(0, params.xDes(1), params.N); 0.5 * ones(1,params.N)];...
+    [(params.xDes(1)/params.horizon) * ones(1, params.N); zeros(1,params.N)];...
+    [linspace(0, params.xDes(1), params.N) - 0.25; linspace(0, params.xDes(1), params.N) + 0.25]];
 F0 = [initZ(1, :);...
      9.8 * params.m * initZ(1, :);...
      initZ(2, :);...
      9.8 * params.m * initZ(2, :);...
-     1-initZ];
+     (1-initZ)*rdotciScaling];
 params.Delta0 = [X0(:,1:end-1); F0];
 params.P0= zeros(params.dim, (params.N-1));
 end

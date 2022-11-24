@@ -1,4 +1,4 @@
-function [Z_k,Delta_k, int_k, violVec, objValueVec, zdeltaViolVec] = solveADMM(Delta0, P0, G0, x_k, params)
+function [Z_k,Delta_k, int_k, violVec, objValueVec, primalResidualVec, dualResidualVec] = solveADMM(Delta0, P0, G0, x_k, params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 Delta_k = Delta0;
@@ -9,7 +9,11 @@ G_k = G0;
 violVec = [];
 objValueVec =[];
 
-zdeltaViolVec = [];
+
+primalResidualVec=[];
+dualResidualVec=[];
+
+prevZ_k = [];
 
 PVec = [];
 viol = inf;
@@ -33,8 +37,13 @@ for iter = 1:params.maxIters
     [~, ~, rolloutObjValue] = getRollout(Z_k, x_k, params);
     objValueVec =[objValueVec, rolloutObjValue];
 
-    zdeltaViolVec = [zdeltaViolVec, norm(vecnorm(Z_k - Delta_k,2,1))];
-
+    primalResidualVec = [primalResidualVec, norm(vecnorm(Z_k - Delta_k,2,1))];
+%    primalResidualVec = [primalResidualVec, norm(Z_k(:) - Delta_k(:))];
+    %dual residual = rho * I * (-I) * (z_k+1 - z+k)
+    if (iter > 1)
+        dualResidualVec = [dualResidualVec, norm(params.rho * (Z_k(:) - prevZ_k(:)))];
+    end
+    prevZ_k = Z_k;
     P_k = P_k + Z_k - Delta_k;
     P_k = P_k / params.rhoScale;
     G_k = G_k * params.rhoScale;
