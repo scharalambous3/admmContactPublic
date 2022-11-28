@@ -4,10 +4,12 @@ close all
 clc
 yalmip('clear')
 %%
-params = getBipedParams();
+params = getGaitingParams();
 x_k = params.X0;
+N = params.N; finalTime = params.finalTime;
+
 dim = params.dim;
-Delta0 = params.Delta0;
+Delta0=params.Delta0;
 P0 = params.P0;
 G0 = params.G0;
 
@@ -22,7 +24,7 @@ G0 = params.G0;
 tRange=[0:params.dt:params.horizon-params.dt];
 figure(1)
 plot(tRange, X);
-legend("x1", "x2", "x3", "x4", "x5", "x6")
+legend("x1", "x2", "x3", "x4","x5","x6")
 
 figure(2)
 hax = gca;
@@ -66,7 +68,7 @@ if (params.animation)
     
     while (true)
         for k=1:length(tRange)-1
-            drawFloatingBase(hax, X(1:2,k),U(1:4,k), params.xDes(1), [X(5,k);0.0], [X(6,k);0.0]);
+            drawFloatingBase(hax, c(:,k),f(:,k), xDes(1), [rci(1,k);0.0], [rci(2,k);0.0]);
         end
     
     end

@@ -1,18 +1,23 @@
-function [Z_k, objValue] = solveConvexSubproblem(Delta_k, P_k, G_k, x_k, params)
+function [Z_k, objValue] = solveConvexSubproblem(Delta_k, P_k, G_k, x_k, params, epsilon)
 %UNTITLED4 Summary of this function goes here
 %   Detailed explanation goes here
 Q=params.Q; Qf=params.Qf; R=params.R; N=params.N;
 
-ops = sdpsettings('solver','osqp','cachesolvers',1,'allownonconvex',0);%, 'osqp.time_limit', 1);
+ops = params.convexSubproblemSettings;
 X = sdpvar(params.nx,N);
 U = sdpvar(params.nu,N - 1);
 
+if (params.NLInitialization)
+    assign(X, params.X0Init);
+    assign(U, params.U0Init);
+end
+
 obj =0;
 constr = [X(:,1) == x_k];
-G_k = 2 * G_k; %TODO. scaling due to OSQP. Why?
-Q = 2 * Q;
-R = 2 * R;
-Qf = 2 * Qf;
+G_k = 1 * G_k; %TODO. scaling due to OSQP. Why?
+Q = 1 * Q;
+R = 1 * R;
+Qf = 1 * Qf;
 for i = 1:(N - 1)
     %quadratic state input cost
     obj = obj + (X(:,i) - params.xDes)' * Q * (X(:,i) - params.xDes) + U(:, i)' * R * U(:, i);
@@ -31,6 +36,10 @@ for i = 1:(N - 1)
     if ~isempty(params.Au)
     constr = [constr, params.Au * U(:,i) >= params.bu];
     end
+
+    %relaxed orthogonality constraint
+    constr = [constr, (params.Aorth(:, 1:params.nx) * X(:,i) + params.Aorth(:, params.nx+1:end) * U(:,i) + params.aorth)' *...
+              (params.Borth(:, 1:params.nx) * X(:,i) + params.Borth(:, params.nx+1:end) * U(:,i) + params.borth) <=epsilon];
 
 end
 % terminal cost

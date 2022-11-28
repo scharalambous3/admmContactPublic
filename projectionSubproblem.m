@@ -9,13 +9,12 @@ ops = sdpsettings('solver','mosek','cachesolvers',1,'verbose',0);
 %delta = [1cx, 2cy, 3cdotx, 4cdoty, 5rc1, 6rc2, 7fx1, 8fy1, 9fx2, 10fy2, 11rdotc1, 12rdotc2]
 %delta = [delta_c∈R2;delta_cdot∈R2;delta_rci∈R2;delta_f∈R4;delta_rdotci∈R2]
 
-G_k = blkdiag(1000*eye(params.nx), eye(params.nu));
-
+G_k = params.projG_k;
 %For cartpole
 %G_k(end, end) = 0;
 
 
-for i = 1:(N - 1)
+parfor (i = 1:(N - 1), 8)
     delta = sdpvar(params.dim, 1);
     intVar = binvar(params.orthDim, 1);
  
@@ -35,7 +34,8 @@ for i = 1:(N - 1)
     Delta_k = [Delta_k, value(delta)];
     int_k = [int_k, value(intVar)];
 end
-
+%For biped
+%Delta_k(1:params.nx,:)= Z_k(1:params.nx,:);
 
 %For cartpole
 %Delta_k(1:params.nx,1) = 0;
