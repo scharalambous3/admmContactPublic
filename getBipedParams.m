@@ -5,7 +5,8 @@ params.dt = 0.05;
 params.N = 51;
 params.horizon = params.N * params.dt;
 params.NLInitialization=0;
-params.convexSubproblemSettings = sdpsettings('solver','snopt','cachesolvers',1,'allownonconvex',1, 'usex0', params.NLInitialization);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
+%params.convexSubproblemSettings = sdpsettings('solver','snopt','cachesolvers',1,'allownonconvex',1, 'usex0', params.NLInitialization);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
+params.convexSubproblemSettings = sdpsettings('solver','mosek','cachesolvers',1,'allownonconvex',0);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
 params.finalTime = 3.0;
 params.simSteps = params.finalTime/params.dt;
 
@@ -20,7 +21,8 @@ params.xDes= [params.finalTime * 0.5; 0.5; 0; 0; 0; 0];
 
 %ADMM
 params.epsDyn = 1e-16;
-params.rho = 0.2/1000;
+%params.rho = 0.2/1000;
+params.rho = 1;
 params.rhoScale = 1.2;
 params.maxIters=30;
 params.epsilon0 = 100;

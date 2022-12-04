@@ -32,7 +32,7 @@ for iter = 1:params.maxIters
 
     viol = getOrthogonalityViolation(Z_k, params);
 
-    [Delta_k, int_k] = projectionSubproblem(Z_k, P_k, G_k, params);
+    [Delta_k, int_k] = projectionSubproblem(Z_k, P_k, params);
 
     [xTraj, uTraj, rolloutObjValue] = getRollout(Z_k, x_k, params);
     objValueVec =[objValueVec, rolloutObjValue];
