@@ -1,4 +1,7 @@
 gif.m
 *.gif
+*.jpg
+*.jpeg
+plots/
 temp/
 *.asv
