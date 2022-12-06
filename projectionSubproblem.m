@@ -14,7 +14,7 @@ G_k = params.projG_k;
 %G_k(end, end) = 0;
 
 
-parfor (i = 1:(N - 1), 8)
+for i = 1:(N - 1)
     delta = sdpvar(params.dim, 1);
     intVar = binvar(params.orthDim, 1);
  

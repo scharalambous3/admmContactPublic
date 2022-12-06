@@ -38,8 +38,8 @@ for i = 1:(N - 1)
     end
 
     %relaxed orthogonality constraint
-    constr = [constr, (params.Aorth(:, 1:params.nx) * X(:,i) + params.Aorth(:, params.nx+1:end) * U(:,i) + params.aorth)' *...
-              (params.Borth(:, 1:params.nx) * X(:,i) + params.Borth(:, params.nx+1:end) * U(:,i) + params.borth) <=epsilon];
+    %constr = [constr, (params.Aorth(:, 1:params.nx) * X(:,i) + params.Aorth(:, params.nx+1:end) * U(:,i) + params.aorth)' *...
+    %          (params.Borth(:, 1:params.nx) * X(:,i) + params.Borth(:, params.nx+1:end) * U(:,i) + params.borth) <=epsilon];
 
 end
 % terminal cost

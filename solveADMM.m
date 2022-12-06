@@ -9,7 +9,6 @@ epsilon = params.epsilon0;
 violVec = [];
 objValueVec =[];
 
-
 primalResidualVec=[];
 dualResidualVec=[];
 

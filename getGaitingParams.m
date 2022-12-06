@@ -42,6 +42,8 @@ params.d = d;
 params.M=1000;
 
 params.Q = [[5000, 0, 0, 0, 0, 0]; [0, 10, 0, 0, 0, 0]; [0, 0, 10, 0, 0 ,0]; [0, 0, 0, 10, 0, 0]; [0, 0, 0, 0, 10, 0]; [0, 0, 0, 0, 0, 10]];
+%ie zero cost on complementarity variables (Note that includes tangential forces!). 
+% nonzero cost on accelerations for grippers' position and on normal contact force.
 params.R = diag([zeros(1, 6), ones(1,4) ]);
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
 params.Qf = params.Q;
