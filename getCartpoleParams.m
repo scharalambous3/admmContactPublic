@@ -57,6 +57,9 @@ params.maxIters=10;
 params.Ax = [];
 params.bx = [];
 
+params.AxTerminal = [];
+params.bxTerminal = [];
+
 %unilateral force constraint Au U >= bu.  f2>=0, f4>=0
 params.Au = [];
 params.bu = [];

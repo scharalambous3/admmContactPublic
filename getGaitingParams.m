@@ -1,17 +1,17 @@
 function [params] = getGaitingParams()
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
-params.dt = 0.001;
-params.N = 100;
+params.dt = 0.1;
+params.N = 10;
 params.horizon = params.N * params.dt;
 
-params.convexSubproblemSettings = sdpsettings('solver','mosek','cachesolvers',1,'allownonconvex',0);%, 'osqp.time_limit', 0.01);
+params.convexSubproblemSettings = sdpsettings('solver','osqp','cachesolvers',1,'allownonconvex',0, 'osqp.time_limit', 0.01);
 
 params.finalTime = 3.0;
 params.simSteps = params.finalTime/params.dt;
 
 params.nx = 6;
-params.nu = 10;
+params.nu = 10; % Input = [6 dimensional lambda; 4 dimensional u]
 params.dim = params.nx + params.nu;
 params.animation = false;
 params.liveGraphs = true;
@@ -24,7 +24,7 @@ params.NLInitialization=0;
 %Ts can be smaller than dt for better integration
 g = 9.81;
 mu = 1;
-h = 0.1;
+h = params.dt;
 A = [[1,h,0,0,0,0];[0, 1, 0, 0, 0, 0]; [0, 0, 1, h, 0, 0 ]; [0, 0, 0, 1, 0, 0]; [0, 0, 0, 0, 1, h]; [0, 0, 0, 0, 0, 1]];
 B = [[0,0,0,0]; [0, 0, 0, 0]; [h*h, 0, 0, 0]; [h, 0, 0, 0]; [0, h*h, 0, 0]; [0, h, 0, 0]];
 D = [[0, h*h, -h*h, 0, h*h, -h*h]; [0, h, -h, 0, h, -h]; [0, -h*h, h*h, 0, 0, 0]; [0, -h, h, 0, 0, 0]; [0, 0, 0, 0, -h*h, h*h]; [0, 0, 0, 0, -h, h]];
@@ -36,14 +36,12 @@ H = [[0, 0, mu, 0]; [-h, 0, 0, 0]; [h, 0, 0, 0]; [0, 0, 0, mu]; [0, -h, 0, 0]; [
 
 
 params.A = A;
-params.B = [D, B];
+params.B = [D, B]; % Since input in my case is [lambda; u]
 params.d = d;
 
 params.M=1000;
 
 params.Q = [[5000, 0, 0, 0, 0, 0]; [0, 10, 0, 0, 0, 0]; [0, 0, 10, 0, 0 ,0]; [0, 0, 0, 10, 0, 0]; [0, 0, 0, 0, 10, 0]; [0, 0, 0, 0, 0, 10]];
-%ie zero cost on complementarity variables (Note that includes tangential forces!). 
-% nonzero cost on accelerations for grippers' position and on normal contact force.
 params.R = diag([zeros(1, 6), ones(1,4) ]);
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
 params.Qf = params.Q;
@@ -59,11 +57,19 @@ params.maxIters=10;
 params.projG_k = blkdiag(1000*eye(params.nx), eye(params.nu));
 params.G0 = (params.rho/2) * eye(params.dim, params.dim);
 
-params.Ax = [];
-params.bx = [];
+% Constraints Ax * X >= bx and Au * U >= bu
+%u3 and u4 >= 0
+params.Au = zeros(2, params.nu);
+params.Au(:, end-1:end) = eye(2);
+params.bu = zeros(2, 1);
 
-params.Au = [];
-params.bu = [];
+params.Ax = zeros(4, params.nx);
+params.Ax(1:2,[3,5]) = eye(2);
+params.Ax(3:4,[3,5]) = - eye(2);
+params.bx = [1;3;-3;-5];
+
+params.AxTerminal = [];
+params.bxTerminal = [];
 
 params.orthDim = 6;
 

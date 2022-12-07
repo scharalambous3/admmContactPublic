@@ -45,6 +45,10 @@ end
 % terminal cost
 obj = obj + (X(:, N) - params.xDes)' * Qf * (X(:, N) - params.xDes);
 
+%Terminal state constraint
+if ~isempty(params.AxTerminal)
+    constr = [constr, params.AxTerminal * X(:,N) == params.bxTerminal];
+end
 opt = optimize(constr,obj,ops);
 
 Z_k = [value(X(:,1:N-1)); value(U)];

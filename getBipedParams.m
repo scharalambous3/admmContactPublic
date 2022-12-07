@@ -82,6 +82,9 @@ params.Au(1:2,[2, 4]) = eye(2); % f2>=0, f4>=0
 params.Au(3:6,1:4) = blkdiag([-1, params.mu; 1,params.mu],[-1, params.mu; 1,params.mu]); % friction cone
 params.bu = zeros(6, 1);
 
+params.AxTerminal = [];
+params.bxTerminal = [];
+
 params.orthDim = 2;
 
 params.Aorth = zeros(params.orthDim, params.dim);
