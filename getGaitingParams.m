@@ -18,7 +18,9 @@ params.liveGraphs = true;
 
 params.X0 =  [-8;0;3;0;4;0];
 
-params.xDes= zeros(params.nx, 1);
+xDesFinal= zeros(params.nx, 1);
+params.xDes = repmat(xDesFinal, 1, params.N);
+
 params.NLInitialization=0;
 %Since dynamics are linear now, Ts doesnt matter. Once I have NL dynamics
 %Ts can be smaller than dt for better integration

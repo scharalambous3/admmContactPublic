@@ -20,7 +20,7 @@ R = 1 * R;
 Qf = 1 * Qf;
 for i = 1:(N - 1)
     %quadratic state input cost
-    obj = obj + (X(:,i) - params.xDes)' * Q * (X(:,i) - params.xDes) + U(:, i)' * R * U(:, i);
+    obj = obj + (X(:,i) - params.xDes(:, i))' * Q * (X(:,i) - params.xDes(:, i)) + U(:, i)' * R * U(:, i);
 
     %consensus cost
     obj = obj + ([X(:,i); U(:, i)] - Delta_k(:, i) + P_k(:, i))' * G_k * ([X(:,i); U(:, i)] - Delta_k(:, i) + P_k(:, i));
@@ -43,7 +43,7 @@ for i = 1:(N - 1)
 
 end
 % terminal cost
-obj = obj + (X(:, N) - params.xDes)' * Qf * (X(:, N) - params.xDes);
+obj = obj + (X(:, N) - params.xDes(:, end))' * Qf * (X(:, N) - params.xDes(:, end));
 
 %Terminal state constraint
 if ~isempty(params.AxTerminal)

@@ -15,11 +15,11 @@ for i = 1:(N - 1)
     xTraj = [xTraj, xc];
     uTraj = [uTraj, uc];
 
-    cost = cost +  (xc - params.xDes)' * Q * (xc - params.xDes) +  uc' * R * uc;
+    cost = cost +  (xc - params.xDes(:, i))' * Q * (xc - params.xDes(:, i)) +  uc' * R * uc;
 
     %simulate forward
     xc = discreteDyn(xc, uc, params);
 end
 xTraj = [xTraj, xc];
-cost = cost + (xc - params.xDes)' * Qf * (xc - params.xDes);
+cost = cost + (xc - params.xDes(:, end))' * Qf * (xc - params.xDes(:, end));
 end

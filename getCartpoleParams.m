@@ -13,7 +13,8 @@ params.nu = 3;
 params.dim = params.nx + params.nu;
 params.animation = false;
 
-params.xDes= [0; 0; 0; 0];
+xDesFinal= [0; 0; 0; 0];
+params.xDes = repmat(xDesFinal, 1, params.N);
 params.X0 =[0.3; 0; 0.3; 0];
 
 g = 9.81;
