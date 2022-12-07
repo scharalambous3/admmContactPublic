@@ -5,7 +5,7 @@ params.dt = 0.1;
 params.N = 10;
 params.horizon = params.N * params.dt;
 
-params.convexSubproblemSettings = sdpsettings('solver','osqp','cachesolvers',1,'allownonconvex',0, 'osqp.time_limit', 0.01);
+params.convexSubproblemSettings = sdpsettings('solver','osqp','cachesolvers',1,'allownonconvex',0, 'osqp.time_limit', 0.001);
 
 params.finalTime = 3.0;
 params.simSteps = params.finalTime/params.dt;
@@ -43,8 +43,9 @@ params.d = d;
 
 params.M=1000;
 
-params.Q = [[5000, 0, 0, 0, 0, 0]; [0, 10, 0, 0, 0, 0]; [0, 0, 10, 0, 0 ,0]; [0, 0, 0, 10, 0, 0]; [0, 0, 0, 0, 10, 0]; [0, 0, 0, 0, 0, 10]];
-params.R = diag([zeros(1, 6), ones(1,4) ]);
+%scaling due to OSQP
+params.Q = 2 * [[5000, 0, 0, 0, 0, 0]; [0, 10, 0, 0, 0, 0]; [0, 0, 10, 0, 0 ,0]; [0, 0, 0, 10, 0, 0]; [0, 0, 0, 0, 10, 0]; [0, 0, 0, 0, 0, 10]];
+params.R = 2 * diag([zeros(1, 6), ones(1,4) ]);
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
 params.Qf = params.Q;
 
@@ -57,7 +58,7 @@ params.rho = 1;
 params.rhoScale = 1.2;
 params.maxIters=10;
 params.projG_k = blkdiag(1000*eye(params.nx), eye(params.nu));
-params.G0 = (params.rho/2) * eye(params.dim, params.dim);
+params.G0 = (params.rho) * eye(params.dim, params.dim) * 2;%scaling due to OSQP
 
 % Constraints Ax * X >= bx and Au * U >= bu
 %u3 and u4 >= 0

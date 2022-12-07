@@ -14,10 +14,7 @@ end
 
 obj =0;
 constr = [X(:,1) == x_k];
-G_k = 1 * G_k; %TODO. scaling due to OSQP. Why?
-Q = 1 * Q;
-R = 1 * R;
-Qf = 1 * Qf;
+
 for i = 1:(N - 1)
     %quadratic state input cost
     obj = obj + (X(:,i) - params.xDes(:, i))' * Q * (X(:,i) - params.xDes(:, i)) + U(:, i)' * R * U(:, i);
