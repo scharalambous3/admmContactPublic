@@ -3,8 +3,7 @@ function [params] = getBipedParamsImplicit()
 %   Detailed explanation goes here
 params.dt = 0.05;
 params.N = 51;
-stanceIndices = 0.25/params.dt;
-params.groupingN = (params.N-1)/stanceIndices;
+params.groupingN  = 0.25/params.dt;
 params.horizon = params.N * params.dt;
 params.NLInitialization=0;
 %params.convexSubproblemSettings = sdpsettings('solver','snopt','cachesolvers',1,'allownonconvex',1, 'usex0', params.NLInitialization);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
@@ -39,18 +38,18 @@ params.xDes = repmat(xDesFinal, 1, params.N);
 params.epsDyn = 1e-16;
 %params.rho = 0.2/1000;
 params.rho = 1;
-params.rhoScale = 2;
+params.rhoScale = 1.5;
 params.maxIters= 30;
 params.epsilon0 = 100;
 %The state, fx1 and fx2 do not enter the orthogonality constraint
 %In the projection subproblem I need nonzero entries in G to retun non-NaNs
 %params.projG_k = blkdiag(eye(params.nx), eye(params.nu));
-params.projG_k = (params.rho/2) * blkdiag(diag([ones(1, 4), 1, 5000000, 1, 5000000, 500 * ones(1, 4)]),... %since in orthogonality only x6,x8,x9,x10,x11,x12 appear
+params.projG_k = blkdiag(diag([1,1,1,1, 1, 1000, 1, 1000, 100,100,100,100]),... %since in orthogonality only x6,x8,x9,x10,x11,x12 appear
                                      eye(params.nu));
 
 %The elements of omega and delta corresponding to these are irrelevant by
 %setting the respective weights in G to 0
-params.G0 = (params.rho/2) * blkdiag(diag([zeros(1, 5), 1, 0, 1, zeros(1, 4)]),... %since in orthogonality only x6,x8,x9,x10,x11,x12 appear
+params.G0 = (params.rho/2) * blkdiag(diag([ones(1, 5), 1, 1, 1, ones(1, 4)]),...
                                      eye(params.nu));
 
 params.g = [0; -9.8];
@@ -59,11 +58,12 @@ m=10.0;
 params.m = m;
 params.I = (params.m/12) * (0.75^2 + 0.5^2);
 
-params.Q = diag([50000, 50000, 1000, 1000, 0, 0, 0, 0, 100, 100, 100, 100]);
+params.Q = diag([50000, 50000, 1000, 1000, 0, 0, 0, 0, 1000, 1000, 1000, 1000]);
 %params.R = diag([zeros(1, 1), 1, 1, 0.01, zeros(1, 1), 1, 1, 0.01 , 0.05, 0.05, 0.05, 0.05]);
 params.R = diag([zeros(1, lambdaDim), 0.05, 0.05, 0.05, 0.05]);
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
 params.Qf = params.Q;
+params.RInt = diag([0,0,0,1,0,0,0,1]);
 
 %Since dynamics are linear now, Ts doesnt matter. Once I have NL dynamics
 %Ts can be smaller than dt for better integration
@@ -109,26 +109,27 @@ params.M=1000;
 % params.bx = [-0.35; 0.15; -0.35; 0.15; params.xDes(2) - 0.15; - (params.xDes(2) + 0.15)];
 %     cy - 0.5 - 0.1 <= rc1y, rc1y <= cy - 0.5 + 0.1
 %     cy - 0.5 - 0.1 <= rc2y, rc2y <= cy - 0.5 + 0.1
-params.Ax = [-1, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 0;...
+params.Ax = [-1, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 0;...%box constraints for rcix
              1, 0, 0, 0,-1,  0,  0, 0, 0, 0, 0, 0;...
              1, 0, 0, 0, 0,  0, -1, 0, 0, 0, 0, 0;...
             -1, 0, 0, 0, 0,  0,  1, 0, 0, 0, 0, 0;...
-             0, -1, 0, 0, 0, 1,  0, 0, 0, 0, 0, 0;...
+             0, -1, 0, 0, 0, 1,  0, 0, 0, 0, 0, 0;...%box constraints for rciy
              0, 1, 0, 0,  0,-1,  0, 0, 0, 0, 0, 0;...
              0, -1, 0, 0, 0, 0,  0, 1, 0, 0, 0, 0;...
              0, 1, 0, 0,  0, 0,  0, -1, 0, 0, 0, 0;...
-             0, 0, 0, 0,  0, 1,  0, 0, 0, 0, 0, 0;...
+             0, 0, 0, 0,  0, 1,  0, 0, 0, 0, 0, 0;...%rci >= 0
              0, 0, 0, 0,  0, 0,  0, 1, 0, 0, 0, 0];
 params.bx = [-0.35; 0.15; -0.35; 0.15; -0.6; 0.4; -0.6; 0.4; 0; 0];
 
-mu=0.9;
+mu=0.7;
 params.mu = mu;
 %unilateral force constraint Au * U >= bu.  
-params.Au = zeros(4, params.nu);
-params.Au(1:2,[4, 8]) = eye(2); % f2>=0, f4>=0
-params.Au(3,[2,3,4]) = [-1, -1, mu]; %friction cone for contact 1
-params.Au(4,[6,7,8]) = [-1, -1, mu]; %friction cone for contact 1
-params.bu = zeros(4, 1);
+params.Au = zeros(10, params.nu);
+params.Au(1:6,[2, 3, 4, 6, 7, 8]) = eye(6); % f1N>=0, f2N>=0
+params.Au(7,[2,3,4]) = [-1, -1, mu]; %friction cone for contact 1
+params.Au(8,[6,7,8]) = [-1, -1, mu]; %friction cone for contact 1
+params.Au(9:10,[4, 8]) = -eye(2); % force limits
+params.bu = [zeros(8, 1); -150; -150];
 
 
 params.AxTerminal = zeros(6,params.nx);
