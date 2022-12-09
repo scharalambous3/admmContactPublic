@@ -122,9 +122,11 @@ params.bx = [-0.35; 0.15; -0.35; 0.15; -0.6; 0.4; -0.6; 0.4; 0; 0];
 mu=0.9;
 params.mu = mu;
 %unilateral force constraint Au * U >= bu.  
-params.Au = zeros(2, params.nu);
+params.Au = zeros(4, params.nu);
 params.Au(1:2,[4, 8]) = eye(2); % f2>=0, f4>=0
-params.bu = zeros(2, 1);
+params.Au(3,[2,3,4]) = [-1, -1, mu]; %friction cone for contact 1
+params.Au(4,[6,7,8]) = [-1, -1, mu]; %friction cone for contact 1
+params.bu = zeros(4, 1);
 
 
 params.AxTerminal = zeros(6,params.nx);

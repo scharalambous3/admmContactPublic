@@ -25,9 +25,8 @@ for i = 1:(N - 1)
     constr = [constr, params.Adelta_delta * delta + params.Adelta_int * intVar >= params.bdelta];
 
     %For biped
-    Ax = zeros(2, params.nx);
-    Ax(:,[6,8]) = eye(2);
-    constr = [constr, [Ax zeros(2, params.nu)]* delta>= 0];
+    constr = [constr, [params.Ax zeros(size(params.Ax, 1), params.nu)] * delta >= params.bx];
+    constr = [constr, [zeros(size(params.Au, 1), params.nx) params.Au] * delta >= params.bu];
 
     optimize(constr,obj,ops);
     Delta_k = [Delta_k, value(delta)];
