@@ -20,30 +20,30 @@ params.liveGraphs = true;
 
 params.X0 = [0; 0.5; 0; 0; -0.25; 0; 0.25; 0; zeros(4, 1)];
 %For jumping
-xDesMiddle = [0; 5; 0; 0;...
-    - 0.25; 4.5; 0.25; 4.5; zeros(4, 1)];
-xDesFinal = [0; 0.5; 0; 0; -0.25; 0; 0.25; 0; zeros(4, 1)];
-params.xDes = repmat(xDesFinal, 1, params.N);
-midIndex = floor(params.N/2);
-params.xDes(2, :) = [linspace(params.X0(2), xDesMiddle(2), midIndex), linspace(xDesMiddle(2), xDesFinal(2), params.N - midIndex) ];
-params.xDes(6, :) = [linspace(params.X0(6), xDesMiddle(6), midIndex), linspace(xDesMiddle(6), xDesFinal(6), params.N - midIndex) ];
-params.xDes(8, :) = [linspace(params.X0(8), xDesMiddle(8), midIndex), linspace(xDesMiddle(8), xDesFinal(8), params.N - midIndex) ];
+% xDesMiddle = [0; 5; 0; 0;...
+%     - 0.25; 4.5; 0.25; 4.5; zeros(4, 1)];
+% xDesFinal = [0; 0.5; 0; 0; -0.25; 0; 0.25; 0; zeros(4, 1)];
+% params.xDes = repmat(xDesFinal, 1, params.N);
+% midIndex = floor(params.N/2);
+% params.xDes(2, :) = [linspace(params.X0(2), xDesMiddle(2), midIndex), linspace(xDesMiddle(2), xDesFinal(2), params.N - midIndex) ];
+% params.xDes(6, :) = [linspace(params.X0(6), xDesMiddle(6), midIndex), linspace(xDesMiddle(6), xDesFinal(6), params.N - midIndex) ];
+% params.xDes(8, :) = [linspace(params.X0(8), xDesMiddle(8), midIndex), linspace(xDesMiddle(8), xDesFinal(8), params.N - midIndex) ];
 
-%xDesFinal= [params.finalTime * 0.5; 0.5; 0; 0;...
-%    0; 0; 0; 0; zeros(4, 1)];
-%params.xDes = repmat(xDesFinal, 1, params.N);
+xDesFinal= [params.finalTime * 0.5; 0.5; 0; 0;...
+   0; 0; 0; 0; zeros(4, 1)];
+params.xDes = repmat(xDesFinal, 1, params.N);
 
 %ADMM
 params.epsDyn = 1e-16;
 %params.rho = 0.2/1000;
 params.rho = 1;
-params.rhoScale = 1.2;
-params.maxIters=30;
+params.rhoScale = 2;
+params.maxIters= 30;
 params.epsilon0 = 100;
 %The state, fx1 and fx2 do not enter the orthogonality constraint
 %In the projection subproblem I need nonzero entries in G to retun non-NaNs
 %params.projG_k = blkdiag(eye(params.nx), eye(params.nu));
-params.projG_k = (params.rho/2) * blkdiag(diag([ones(1, 5), 1000, 1, 1000, ones(1, 4)]),... %since in orthogonality only x6,x8,x9,x10,x11,x12 appear
+params.projG_k = (params.rho/2) * blkdiag(diag([ones(1, 4), 1, 5000000, 1, 5000000, 500 * ones(1, 4)]),... %since in orthogonality only x6,x8,x9,x10,x11,x12 appear
                                      eye(params.nu));
 
 %The elements of omega and delta corresponding to these are irrelevant by
@@ -57,8 +57,9 @@ m=10.0;
 params.m = m;
 params.I = (params.m/12) * (0.75^2 + 0.5^2);
 
-params.Q = diag([50000, 50000, 50000, 50000, 0, 0, 0, 0, 100, 100, 100, 100]);
-params.R = diag([zeros(1, 1), 1, 1, 1, zeros(1, 1), 1, 1, 1 , 0.001, 0.001, 0.001, 0.001]);
+params.Q = diag([50000, 50000, 1000, 1000, 0, 0, 0, 0, 100, 100, 100, 100]);
+%params.R = diag([zeros(1, 1), 1, 1, 0.01, zeros(1, 1), 1, 1, 0.01 , 0.05, 0.05, 0.05, 0.05]);
+params.R = diag([zeros(1, lambdaDim), 0.05, 0.05, 0.05, 0.05]);
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
 params.Qf = params.Q;
 
@@ -125,6 +126,7 @@ params.Au = zeros(2, params.nu);
 params.Au(1:2,[4, 8]) = eye(2); % f2>=0, f4>=0
 params.bu = zeros(2, 1);
 
+
 params.AxTerminal = zeros(6,params.nx);
 params.AxTerminal(:, [6,8,9,10,11,12]) = eye(6);
 params.bxTerminal = zeros(6, 1);
@@ -168,27 +170,36 @@ params.Adelta_int = [zeros(params.orthDim);...  %%Aorth * Z + aorth >= 0
 
 params.bdelta = [- params.aorth; - params.borth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
 
-%Initialization
-initZ = zeros(params.orthDim, params.N - 1);
-stanceIndices = 0.25/params.dt;
-reps = (params.N-1)/stanceIndices;
-trotVec = repelem([1,0], stanceIndices);
-trotDefault = repmat(trotVec,1, reps/2);
-initZ(1, :) = trotDefault(1:params.N-1);
-initZ(2, :) = 1 - initZ(1, :);
+%Initialization TODO: Update for implicit formulation
+% initZ = zeros(params.orthDim, params.N - 1);
+% stanceIndices = 0.25/params.dt;
+% reps = (params.N-1)/stanceIndices;
+% trotVec = repelem([1,0], stanceIndices);
+% trotDefault = repmat(trotVec,1, reps/2);
+% initZ(1, :) = trotDefault(1:params.N-1);
+% initZ(2, :) = 1 - initZ(1, :);
+% initZ(:, 1:5) = 1;
+% initZ(:, end-5:end) = 1;
+%params.initZ = initZ;
+
+%For jumping
+initZ = zeros(2, params.N - 1);
 initZ(:, 1:5) = 1;
 initZ(:, end-5:end) = 1;
+params.X0Init = params.xDes;
+params.U0Init = zeros(params.nu, params.N - 1);
+params.U0Init(4, :) = 10 * 9.8 * params.m * initZ(1, :);
+params.U0Init(8, :) = 10 * 9.8 * params.m * initZ(2, :);
 
-params.initZ = initZ;
-
-params.X0Init = [[linspace(0, params.xDes(1, end), params.N); 0.5 * ones(1,params.N)];...
-    [(params.xDes(1, end)/params.horizon) * ones(1, params.N); zeros(1,params.N)];...
-    [linspace(0, params.xDes(1, end), params.N) - 0.25; linspace(0, params.xDes(1, end), params.N) + 0.25]];
-params.U0Init = [initZ(1, :);...
-     9.8 * params.m * initZ(1, :);...
-     initZ(2, :);...
-     9.8 * params.m * initZ(2, :);...
-     (1-initZ)];
+% params.X0Init = [[linspace(0, params.xDes(1, end), params.N); 0.5 * ones(1,params.N)];...
+%     [(params.xDes(1, end)/params.horizon) * ones(1, params.N); zeros(1,params.N)];...
+%     [linspace(0, params.xDes(1, end), params.N) - 0.25; linspace(0, params.xDes(1, end), params.N) + 0.25]];
+%TODO: Update for implicit formulation
+% params.U0Init = [initZ(1, :);...
+%      9.8 * params.m * initZ(1, :);...
+%      initZ(2, :);...
+%      9.8 * params.m * initZ(2, :);...
+%      (1-initZ)];
 if (initialization)
     params.Delta0 = [params.X0Init(:,1:end-1); params.U0Init];
 else

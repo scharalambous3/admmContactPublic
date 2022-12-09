@@ -6,9 +6,6 @@ Delta_k = [];
 int_k = [];
 ops = sdpsettings('solver','mosek','cachesolvers',1,'verbose',0);
 
-%delta = [1cx, 2cy, 3cdotx, 4cdoty, 5rc1, 6rc2, 7fx1, 8fy1, 9fx2, 10fy2, 11rdotc1, 12rdotc2]
-%delta = [delta_c∈R2;delta_cdot∈R2;delta_rci∈R2;delta_f∈R4;delta_rdotci∈R2]
-
 G_k = params.projG_k;
 %For cartpole
 %G_k(end, end) = 0;
@@ -22,13 +19,15 @@ for i = 1:(N - 1)
     obj = (Z_k(:, i) - delta + P_k(:, i))' * G_k * (Z_k(:, i) - delta + P_k(:, i));
 
     constr = [];
-    % orthogonality constraints:  f>= 0, rdotci orthogonal to f
 
     %TODO: constraints on integer variables
-    %constr = [constr, intVar(1) + intVar(2) >= 1];
     
-    % zero force during swing
     constr = [constr, params.Adelta_delta * delta + params.Adelta_int * intVar >= params.bdelta];
+
+    %For biped
+    Ax = zeros(2, params.nx);
+    Ax(:,[6,8]) = eye(2);
+    constr = [constr, [Ax zeros(2, params.nu)]* delta>= 0];
 
     optimize(constr,obj,ops);
     Delta_k = [Delta_k, value(delta)];

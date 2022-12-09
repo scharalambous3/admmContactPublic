@@ -44,7 +44,7 @@ for i = (N - 1):-1:1
     
     optimize(constr,obj,ops);
     Delta_k = [value(delta), Delta_k];
-    int_k = [int_k, value(intVar)];
+    int_k = [value(intVar), int_k];
 
     r1y_kplusone = value(delta(6));
     r2y_kplusone = value(delta(8));

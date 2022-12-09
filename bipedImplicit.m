@@ -26,7 +26,7 @@ plot(tRange, X);
 
 figure(2)
 hax = gca;
-plotPerf(hax, orthViol,objValueVec, primalResidualVec, dualResidualVec, intVars)
+plotPerf(hax, orthViol,objValueVec, primalResidualVec, dualResidualVec, intVars, X)
 
 % subplot(3,3,3)
 % plot(1:size(dynViol, 2), vecnorm(dynViol(1:3:end,:),2, 1));
