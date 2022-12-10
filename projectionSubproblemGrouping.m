@@ -20,7 +20,9 @@ for i = 1:(N - 1)/params.groupingN
 
     %For biped
     if ((i ==1) || (i == (N - 1)/params.groupingN))
-        constr = [constr, intVar(4) == 1, intVar(8) == 1];
+        %constr = [constr, intVar(4) == 1, intVar(8) == 1];
+        %Alt
+        %constr = [constr, intVar(1) == 1, intVar(2) == 1];
     end
     for j = 1:params.groupingN
         ndx = (i - 1) * params.groupingN + j;
@@ -38,7 +40,10 @@ for i = 1:(N - 1)/params.groupingN
         constr = [constr, [params.Ax zeros(size(params.Ax, 1), params.nu)] * delta(:, j) >= params.bx];
         constr = [constr, [zeros(size(params.Au, 1), params.nx) params.Au] * delta(:, j) >= params.bu];
         %For walking
-        constr = [constr, intVar(4) + intVar(8) >= 1];
+        %constr = [constr, intVar(4) + intVar(8) >= 1];
+        %Alt
+        %constr = [constr, intVar(1) + intVar(2) >= 1];
+
 
     end
     optimize(constr,obj,ops);

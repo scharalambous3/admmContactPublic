@@ -1,4 +1,4 @@
-function [Delta_k, int_k] = projectionSubproblem(Z_k, P_k, params)
+function [Delta_k, int_k] = projectionSubproblem(Z_k, P_k, params, ~)
 %UNTITLED4 Summary of this function goes here
 % Detailed explanation goes here
 N = params.N;
