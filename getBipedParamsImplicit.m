@@ -60,7 +60,7 @@ params.I = (params.m/12) * (0.75^2 + 0.5^2);
 
 params.Q = diag([50000, 50000, 1000, 1000, 0, 0, 0, 0, 1000, 1000, 1000, 1000]);
 %params.R = diag([zeros(1, 1), 1, 1, 0.01, zeros(1, 1), 1, 1, 0.01 , 0.05, 0.05, 0.05, 0.05]);
-params.R = diag([zeros(1, lambdaDim), 0.05, 0.05, 0.05, 0.05]);
+params.R = diag([1, 1, 1, 0.1, 1, 1, 1, 0.1, 0.05, 0.05, 0.05, 0.05]);
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
 params.Qf = params.Q;
 params.RInt = diag([0,0,0,1,0,0,0,1]);
