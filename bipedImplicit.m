@@ -4,14 +4,14 @@ close all
 clc
 yalmip('clear')
 %%
-params = getBipedParamsImplicit();
+params = getBipedParamsImplicitAlt();
 x_k = params.X0;
 dim = params.dim;
 Delta0 = params.Delta0;
 P0 = params.P0;
 G0 = params.G0;
 
-[Z,Delta, intVars, orthViol, objValueVec, primalResidualVec, dualResidualVec] = solveADMM(Delta0, P0, G0, x_k, params);
+[Z,Delta, intVars, orthViol, objValueVec, primalResidualArr, dualResidualArr] = solveADMM(Delta0, P0, G0, x_k, params);
 
 %%
 % X=Z(1:params.nx,:);
@@ -26,7 +26,7 @@ plot(tRange, X);
 
 figure(2)
 hax = gca;
-plotPerf(hax, orthViol,objValueVec, primalResidualVec, dualResidualVec, intVars, X)
+plotPerf(hax, orthViol,objValueVec, primalResidualArr, dualResidualArr, intVars([1,2], :), X)
 
 % subplot(3,3,3)
 % plot(1:size(dynViol, 2), vecnorm(dynViol(1:3:end,:),2, 1));

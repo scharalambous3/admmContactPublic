@@ -1,4 +1,4 @@
-function [Z_k,Delta_k, int_k, violVec, objValueVec, primalResidualVec, dualResidualVec] = solveADMM(Delta0, P0, G0, x_k, params)
+function [Z_k,Delta_k, int_k, violVec, objValueVec, primalResidualArr, dualResidualArr] = solveADMM(Delta0, P0, G0, x_k, params)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 Delta_k = Delta0;
@@ -10,7 +10,10 @@ violVec = [];
 objValueVec =[];
 
 primalResidualVec=[];
+primalResidualArr=[];
+
 dualResidualVec=[];
+dualResidualArr=[];
 
 prevZ_k = [];
 int_k = [];
@@ -33,16 +36,19 @@ for iter = 1:params.maxIters
     viol = getOrthogonalityViolation(Z_k, params);
 
     prevInt_k = int_k;
-    [Delta_k, int_k] = projectionSubproblemGrouping(Z_k, P_k, params, prevInt_k);
+    [Delta_k, int_k] = projectionSubproblemAlt(Z_k, P_k, params, prevInt_k);
 
     [xTraj, uTraj, rolloutObjValue] = getRollout(Z_k, x_k, params);
     objValueVec =[objValueVec, rolloutObjValue];
 
     primalResidualVec = [primalResidualVec, norm(vecnorm(Z_k - Delta_k,2,1))];
+    primalResidualArr = [primalResidualArr, (vecnorm(Z_k - Delta_k,2,2))];
+    
 %    primalResidualVec = [primalResidualVec, norm(Z_k(:) - Delta_k(:))];
     %dual residual = rho * I * (-I) * (z_k+1 - z+k)
     if (iter > 1)
         dualResidualVec = [dualResidualVec, norm(params.rho * (Z_k(:) - prevZ_k(:)))];
+        dualResidualArr = [dualResidualArr, vecnorm(params.rho * (Z_k - prevZ_k), 2, 2)];
     end
     prevZ_k = Z_k;
     P_k = P_k + Z_k - Delta_k;
@@ -55,7 +61,7 @@ for iter = 1:params.maxIters
     if (params.liveGraphs)
         figure(2)
         hax = gca;
-        plotPerf(hax, violVec,objValueVec, primalResidualVec, dualResidualVec, int_k, xTraj)
+        plotPerf(hax, violVec,objValueVec, primalResidualArr, dualResidualArr, int_k, xTraj)
     end
 end
 
