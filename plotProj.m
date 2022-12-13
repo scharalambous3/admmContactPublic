@@ -75,6 +75,27 @@ xlabel('time')
 title('phidot2 Z_k vs Δ_k')
 legend('phidot2 from Z_k','phidot2 from Δ_k');
 
+
+subplot(2,4,7)
+plot(timeTraj(1:end-1), Z(params.phiDDot1Ndx, :));
+hold on;
+plot(timeTraj(1:end-1), Delta(params.phiDDot1Ndx, :));
+plotAreas(timeTraj, intVars(1,:));
+hold off
+xlabel('time')
+title('phiddot1 Z_k vs Δ_k')
+legend('phiddot1 from Z_k','phiddot1 from Δ_k');
+
+subplot(2,4,8)
+plot(timeTraj(1:end-1), Z(params.phiDDot2Ndx, :));
+hold on;
+plot(timeTraj(1:end-1), Delta(params.phiDDot2Ndx, :));
+plotAreas(timeTraj, intVars(2,:));
+hold off
+xlabel('time')
+title('phiddot2 Z_k vs Δ_k')
+legend('phiddot2 from Z_k','phiddot2 from Δ_k');
+
 end
 function [] = plotAreas(timeTraj, intVars)
 YL = get(gca, 'YLim');

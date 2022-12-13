@@ -23,8 +23,8 @@ params.liveGraphs = true;
 
 params.X0 = [0; 0.5; 0; 0; -0.25; 0; 0.25; 0; zeros(4, 1)];
 %For jumping
-% xDesMiddle = [0; 5; 0; 0;...
-%     - 0.25; 4.5; 0.25; 4.5; zeros(4, 1)];
+% xDesMiddle = [0; 1; 0; 0;...
+%     - 0.25; 0.5; 0.25; 0.5; zeros(4, 1)];
 % xDesFinal = [0; 0.5; 0; 0; -0.25; 0; 0.25; 0; zeros(4, 1)];
 % params.xDes = repmat(xDesFinal, 1, params.N);
 % midIndex = floor(params.N/2);
@@ -41,18 +41,17 @@ params.epsDyn = 1e-16;
 %params.rho = 0.2/1000;
 params.rho = 1;
 params.rhoScale = 1.5;
-params.maxIters= 30;
+params.maxIters= 20;
 params.epsilon0 = 100;
 %The state, fx1 and fx2 do not enter the orthogonality constraint
 %In the projection subproblem I need nonzero entries in G to retun non-NaNs
-%params.projG_k = blkdiag(eye(params.nx), eye(params.nu));
-params.projG_k = blkdiag(diag([1,1,1,1, 1, 1000, 1, 1000, 100,100,100,100]),... %since in orthogonality only x6,x8,x9,x10,x11,x12 appear
-                                     eye(params.nu));
-
+%Note in orthogonality only x6,x8,x9,x10,x11,x12 appear                                    
+params.projG_k = blkdiag(diag([ones(1, 4), 1000 * ones(1, 4), 100 * ones(1, 4), ones(1, 8), ones(1,4)])); 
 %The elements of omega and delta corresponding to these are irrelevant by
 %setting the respective weights in G to 0
-params.G0 = (params.rho/2) * blkdiag(diag([ones(1, 5), 1, 1, 1, ones(1, 4)]),...
-                                     eye(params.nu));
+
+params.G0 = (params.rho/2) * blkdiag(diag([ones(1, 4), 100 * ones(1, 4), 10 * ones(1, 4), ones(1, 8), ones(1,4)]));
+
 
 params.g = [0; -9.8];
 initialization = false;
@@ -62,7 +61,7 @@ params.I = (params.m/12) * (0.75^2 + 0.5^2);
 
 params.Q = diag([50000, 50000, 1000, 1000, 0, 0, 0, 0, 1000, 1000, 1000, 1000]);
 %params.R = diag([zeros(1, 1), 1, 1, 0.01, zeros(1, 1), 1, 1, 0.01 , 0.05, 0.05, 0.05, 0.05]);
-params.R = diag([1, 1, 1, 0.1, 1, 1, 1, 0.1, 0.05, 0.05, 0.05, 0.05]);
+params.R = diag([1, 1, 1, 0.1, 1, 1, 1, 0.1, 5, 5, 5, 5]);
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
 params.Qf = params.Q;
 params.RInt = diag([0,0,0,1,0,0,0,1]);
