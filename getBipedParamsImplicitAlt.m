@@ -4,12 +4,13 @@ function [params] = getBipedParamsImplicitAlt()
 params.dt = 0.05;
 params.N = 51;
 params.groupingN  = 0.25/params.dt;
-params.horizon = params.N * params.dt;
+params.horizon = (params.N-1) * params.dt;
 params.NLInitialization=0;
 %params.convexSubproblemSettings = sdpsettings('solver','snopt','cachesolvers',1,'allownonconvex',1, 'usex0', params.NLInitialization);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
 params.convexSubproblemSettings = sdpsettings('solver','mosek','cachesolvers',1,'allownonconvex',0);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
 params.finalTime = 3.0;
 params.simSteps = params.finalTime/params.dt;
+params.separationIndices = [1,2];
 
 params.nx = 8;
 params.nu = 10;
@@ -42,13 +43,13 @@ params.projG_k(17:18, 17:18) = diag([projGrddoti, projGrddoti]);
 
 %The elements of omega and delta corresponding to these are irrelevant by
 %setting the respective weights in G to 0
-GfiN = projGfiN/100;
-Grdoti = projGrdoti/100;
-Grddoti = projGrddoti/100;
-params.G0 = eye(params.dim);
-params.G0([12,16], [12,16]) = diag([GfiN, GfiN]);
-params.G0(7:8, 7:8) = diag([Grdoti, Grdoti]);
-params.G0(17:18, 17:18) = diag([Grddoti, Grddoti]);
+GfiN = 1;
+Grdoti = 100;
+Grddoti = 10;
+params.G0 = (params.rho/2) * eye(params.dim);
+%params.G0([12,16], [12,16]) = diag([GfiN, GfiN]);
+%params.G0(7:8, 7:8) = diag([Grdoti, Grdoti]);
+%params.G0(17:18, 17:18) = diag([Grddoti, Grddoti]);
 
 params.g = [0; -9.8];
 initialization = false;
@@ -106,10 +107,12 @@ params.Ax = [-1, 0, 0, 0, 1,  0, 0, 0;...%box constraints for rcix
               1, 0, 0, 0, 0, -1, 0, 0;...
              -1, 0, 0, 0, 0,  1, 0, 0;...
               0, 1, 0, 0, 0,  0, 0, 0;...%box constraints for cy
-              0, -1, 0, 0, 0, 0, 0, 0];
-params.bx = [-0.35; 0.15; -0.35; 0.15;xDesFinal(2) - 0.15; - xDesFinal(2) - 0.15];
+              0,-1, 0, 0, 0,  0, 0, 0;...
+              0, 0, 0, 0, 0,  0, 1, 0;...%rdot>=0
+              0, 0, 0, 0, 0,  0, 0, 1];
+params.bx = [-0.35; 0.15; -0.35; 0.15;xDesFinal(2) - 0.15; - xDesFinal(2) - 0.15; 0; 0];
 
-mu=0.6;
+mu=0.7;
 params.mu = mu;
 %unilateral force constraint Au * U >= bu.  
 params.Au = zeros(10, params.nu);
@@ -141,18 +144,18 @@ params.Borth = [E, FH]; % q = Ex + F lambda + H u
 params.borth = zeros(params.orthDim, 1);
 
 %Constraint Adelta_delta * Delta + Adelta_int * int >= bdelta
-%params.Adelta_delta = [params.Aorth; params.Borth; params.Aorth; -params.Aorth; params.Borth; - params.Borth];
-params.Adelta_delta = [params.Aorth; params.Aorth; -params.Aorth; params.Borth; - params.Borth];
+params.Adelta_delta = [params.Aorth; params.Borth; params.Aorth; -params.Aorth; params.Borth; - params.Borth];
+%params.Adelta_delta = [params.Aorth; params.Aorth; -params.Aorth; params.Borth; - params.Borth];
 
 params.Adelta_int = [zeros(params.orthDim);...  %%Aorth * Z + aorth >= 0
-    %zeros(params.orthDim);...  %%Borth * Z + borth >= 0
+    zeros(params.orthDim);...  %%Borth * Z + borth >= 0
     params.M * eye(params.orthDim);... % - M*i <= Aorth * Z + aorth
     params.M * eye(params.orthDim);... % Aorth * Z  + aorth <= + M*i 
     -params.M * eye(params.orthDim);... % -M*(1-i) <= Borth * Z + borth
     -params.M * eye(params.orthDim)]; % Borth * Z + borth <= M*(1-i)
 
-%params.bdelta = [- params.aorth; - params.borth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
-params.bdelta = [- params.aorth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
+params.bdelta = [- params.aorth; - params.borth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
+%params.bdelta = [- params.aorth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
 
 %Initialization TODO: Update for implicit formulation
 % initZ = zeros(params.orthDim, params.N - 1);
@@ -190,4 +193,9 @@ else
     params.Delta0=zeros(params.dim , params.N-1);
 end
 params.P0= zeros(params.dim, (params.N-1));
+
+params.fn1Ndx = params.nx + 4;
+params.fn2Ndx = params.nx + 8;
+params.vT1Ndx = 7;
+params.vT2Ndx = 8;
 end

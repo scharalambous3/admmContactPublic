@@ -36,7 +36,7 @@ for iter = 1:params.maxIters
     viol = getOrthogonalityViolation(Z_k, params);
 
     prevInt_k = int_k;
-    [Delta_k, int_k] = projectionSubproblemAlt(Z_k, P_k, params, prevInt_k);
+    [Delta_k, int_k] = projectionSubproblem(Z_k, P_k, params, prevInt_k);
 
     [xTraj, uTraj, rolloutObjValue] = getRollout(Z_k, x_k, params);
     objValueVec =[objValueVec, rolloutObjValue];
@@ -61,7 +61,9 @@ for iter = 1:params.maxIters
     if (params.liveGraphs)
         figure(2)
         hax = gca;
-        plotPerf(hax, violVec,objValueVec, primalResidualArr, dualResidualArr, int_k, xTraj)
+        plotPerf(hax, violVec,objValueVec, primalResidualArr, dualResidualArr, int_k(params.separationIndices,:), xTraj)
+        plotStates(int_k(params.separationIndices, :), Z_k, params);
+        plotProj(int_k(params.separationIndices, :),  Z_k, Delta_k, params);
     end
 end
 

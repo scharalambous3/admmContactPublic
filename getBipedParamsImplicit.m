@@ -4,12 +4,14 @@ function [params] = getBipedParamsImplicit()
 params.dt = 0.05;
 params.N = 51;
 params.groupingN  = 0.25/params.dt;
-params.horizon = params.N * params.dt;
+params.horizon = (params.N-1) * params.dt;
 params.NLInitialization=0;
 %params.convexSubproblemSettings = sdpsettings('solver','snopt','cachesolvers',1,'allownonconvex',1, 'usex0', params.NLInitialization);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
 params.convexSubproblemSettings = sdpsettings('solver','mosek','cachesolvers',1,'allownonconvex',0);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
 params.finalTime = 3.0;
 params.simSteps = params.finalTime/params.dt;
+
+params.separationIndices = [4,8];
 
 params.nx = 12;
 lambdaDim = 8;
@@ -124,12 +126,14 @@ params.bx = [-0.35; 0.15; -0.35; 0.15; -0.6; 0.4; -0.6; 0.4; 0; 0];
 mu=0.7;
 params.mu = mu;
 %unilateral force constraint Au * U >= bu.  
-params.Au = zeros(10, params.nu);
+params.Au = zeros(18, params.nu);
 params.Au(1:6,[2, 3, 4, 6, 7, 8]) = eye(6); % f1N>=0, f2N>=0
 params.Au(7,[2,3,4]) = [-1, -1, mu]; %friction cone for contact 1
-params.Au(8,[6,7,8]) = [-1, -1, mu]; %friction cone for contact 1
+params.Au(8,[6,7,8]) = [-1, -1, mu]; %friction cone for contact 2
 params.Au(9:10,[4, 8]) = -eye(2); % force limits
-params.bu = [zeros(8, 1); -150; -150];
+%params.Au(11:14,[9:12]) = eye(4); % rddot limits
+%params.Au(15:18,[9:12]) = -eye(4); % rddot limits
+params.bu = [zeros(8, 1); -75; -75; -5; -5; -5; -5; -5; -5; -5; -5];
 
 
 params.AxTerminal = zeros(6,params.nx);
@@ -211,4 +215,15 @@ else
     params.Delta0=zeros(params.dim , params.N-1);
 end
 params.P0= zeros(params.dim, (params.N-1));
+
+params.fn1Ndx = params.nx + 4;
+params.fn2Ndx = params.nx + 8;
+params.phi1Ndx = 6;
+params.phi2Ndx = 8;
+params.phiDot1Ndx = 10;
+params.phiDot2Ndx = 12;
+params.phiDDot1Ndx = params.nx + 10;
+params.phiDDot2Ndx = params.nx + 12;
+params.vT1Ndx = 9;
+params.vT2Ndx = 11;
 end

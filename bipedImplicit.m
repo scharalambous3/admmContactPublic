@@ -4,7 +4,7 @@ close all
 clc
 yalmip('clear')
 %%
-params = getBipedParamsImplicitAlt();
+params = getBipedParamsImplicit();
 x_k = params.X0;
 dim = params.dim;
 Delta0 = params.Delta0;
@@ -19,15 +19,16 @@ G0 = params.G0;
 
 [X, U, cost] = getRollout(Z, x_k, params);
 %%
-tRange=[0:params.dt:params.horizon-params.dt];
+tRange=[0:params.dt:params.horizon];
 figure(1)
 plot(tRange, X);
 %legend("x1", "x2", "x3", "x4", "x5", "x6")
 
 figure(2)
 hax = gca;
-plotPerf(hax, orthViol,objValueVec, primalResidualArr, dualResidualArr, intVars([1,2], :), X)
-
+plotPerf(hax, orthViol,objValueVec, primalResidualArr, dualResidualArr, intVars(params.separationIndices, :), X)
+plotStates(intVars(params.separationIndices, :), Z, params);
+plotProj(intVars(params.separationIndices, :),  Z, Delta, params);
 % subplot(3,3,3)
 % plot(1:size(dynViol, 2), vecnorm(dynViol(1:3:end,:),2, 1));
 % xlabel('Iterations')  
