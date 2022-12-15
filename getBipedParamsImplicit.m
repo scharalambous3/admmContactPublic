@@ -11,7 +11,8 @@ params.convexSubproblemSettings = sdpsettings('solver','mosek','cachesolvers',1,
 params.finalTime = 3.0;
 params.simSteps = params.finalTime/params.dt;
 
-params.separationIndices = [4,8];
+%params.separationIndices = [4,8];
+params.separationIndices = [2, 4];
 
 params.nx = 12;
 lambdaDim = 8;
@@ -35,6 +36,9 @@ params.X0 = [0; 0.5; 0; 0; -0.25; 0; 0.25; 0; zeros(4, 1)];
 xDesFinal= [params.finalTime * 0.5; 0.5; 0; 0;...
    0; 0; 0; 0; zeros(4, 1)];
 params.xDes = repmat(xDesFinal, 1, params.N);
+% Sinusoidal cy reference
+tRange=[0:params.dt:params.horizon];
+%params.xDes(2,:) = xDesFinal(2) + 0.1 * sin(tRange/params.horizon * 4 * pi);
 
 %ADMM
 params.epsDyn = 1e-16;
@@ -61,9 +65,9 @@ params.I = (params.m/12) * (0.75^2 + 0.5^2);
 
 params.Q = diag([50000, 50000, 1000, 1000, 0, 0, 0, 0, 1000, 1000, 1000, 1000]);
 %params.R = diag([zeros(1, 1), 1, 1, 0.01, zeros(1, 1), 1, 1, 0.01 , 0.05, 0.05, 0.05, 0.05]);
-params.R = diag([1, 1, 1, 0.1, 1, 1, 1, 0.1, 5, 5, 5, 5]);
+params.R =  diag([1, 1, 1, 0.1, 1, 1, 1, 0.1, 5, 5, 5, 5]);
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
-params.Qf = params.Q;
+params.Qf = diag([50000, 50000, 1000, 1000, 0, 0, 0, 0, 1000, 1000, 1000, 1000]);
 params.RInt = diag([0,0,0,1,0,0,0,1]);
 
 %Since dynamics are linear now, Ts doesnt matter. Once I have NL dynamics
@@ -109,7 +113,7 @@ params.M=1000;
 %              0, -1, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0];
 % params.bx = [-0.35; 0.15; -0.35; 0.15; params.xDes(2) - 0.15; - (params.xDes(2) + 0.15)];
 %     cy - 0.5 - 0.1 <= rc1y, rc1y <= cy - 0.5 + 0.1
-%     cy - 0.5 - 0.1 <= rc2y, rc2y <= cy - 0.5 + 0.1
+%     cy - 0.5 - 0.1 <= rc2y, rc2y <= cy - 0.5 + 0.1 --> cy - 0.6 <= rcy <= cy - 0.4
 params.Ax = [-1, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 0;...%box constraints for rcix
              1, 0, 0, 0,-1,  0,  0, 0, 0, 0, 0, 0;...
              1, 0, 0, 0, 0,  0, -1, 0, 0, 0, 0, 0;...
@@ -125,58 +129,89 @@ params.bx = [-0.35; 0.15; -0.35; 0.15; -0.6; 0.4; -0.6; 0.4; 0; 0];
 mu=0.7;
 params.mu = mu;
 %unilateral force constraint Au * U >= bu.  
-params.Au = zeros(18, params.nu);
-params.Au(1:6,[2, 3, 4, 6, 7, 8]) = eye(6); % f1N>=0, f2N>=0
-params.Au(7,[2,3,4]) = [-1, -1, mu]; %friction cone for contact 1
-params.Au(8,[6,7,8]) = [-1, -1, mu]; %friction cone for contact 2
-params.Au(9:10,[4, 8]) = -eye(2); % force limits
-%params.Au(11:14,[9:12]) = eye(4); % rddot limits
-%params.Au(15:18,[9:12]) = -eye(4); % rddot limits
-params.bu = [zeros(8, 1); -75; -75; -5; -5; -5; -5; -5; -5; -5; -5];
+params.Au = [];
+params.bu = [];
+unilateralMat = zeros(6, params.nu);
+unilateralMat(:,[2, 3, 4, 6, 7, 8]) = eye(6); % f1N>=0, f2N>=0, and fT+ and fT- >= 0
+params.Au = [params.Au; unilateralMat];
+params.bu = [params.bu; zeros(6, 1)];
+
+frConesMat = zeros(2, params.nu);
+frConesMat(1,[2,3,4]) = [-1, -1, mu]; %friction cone for contact 1
+frConesMat(2,[6,7,8]) = [-1, -1, mu]; %friction cone for contact 2
+params.Au = [params.Au; frConesMat];
+params.bu = [params.bu; zeros(2, 1)];
+
+forceLimitsMat = zeros(2, params.nu);
+forceLimitsMat(:,[4, 8]) = -eye(2); % force limits
+params.Au = [params.Au; forceLimitsMat];
+params.bu = [params.bu;  -75 * ones(2, 1)];
+
+% rddotLimitsMat = zeros(8, params.nu);
+% rddotLimitsMat(1:4,[9:12]) = eye(4); % rddot limits
+% rddotLimitsMat(5:8,[9:12]) = -eye(4); % rddot limits
+% params.Au = [params.Au; rddotLimitsMat];
+% params.bu = [params.bu;  -5 * ones(8, 1)];
 
 
 params.AxTerminal = zeros(6,params.nx);
 params.AxTerminal(:, [6,8,9,10,11,12]) = eye(6);
 params.bxTerminal = zeros(6, 1);
 
-params.orthDim = lambdaDim;
+%params.orthDim = lambdaDim;
+params.orthDim = 4;
 %Aorth is lambda
-params.Aorth = [zeros(params.orthDim, params.nx), eye(lambdaDim), zeros(params.orthDim, uDim)];
+% params.Aorth = [zeros(params.orthDim, params.nx), eye(lambdaDim), zeros(params.orthDim, uDim)];
+params.Aorth = zeros(params.orthDim, params.dim);
+params.Aorth([1,3],[params.nx + 4, params.nx + 8]) = eye(2);
+params.Aorth([2,4],[params.nx + 4, params.nx + 8]) = eye(2);
 params.aorth = zeros(params.orthDim, 1);
 %Borth is q
-E=[0     0     0     0     0     0     0     0     0     0     0     0;...
-   0     0     0     0     0     0     0     0     1     0     0     0;...
-   0     0     0     0     0     0     0     0    -1     0     0     0;...
-   0     0     0     0     0     1     0     0     0     h     0     0;...
-   0     0     0     0     0     0     0     0     0     0     0     0;...
-   0     0     0     0     0     0     0     0     0     0     1     0;...
-   0     0     0     0     0     0     0     0     0     0    -1     0;...
-   0     0     0     0     0     0     0     1     0     0     0     h];
+% E=[0     0     0     0     0     0     0     0     0     0     0     0;...
+%    0     0     0     0     0     0     0     0     1     0     0     0;...
+%    0     0     0     0     0     0     0     0    -1     0     0     0;...
+%    0     0     0     0     0     1     0     0     0     h     0     0;...
+%    0     0     0     0     0     0     0     0     0     0     0     0;...
+%    0     0     0     0     0     0     0     0     0     0     1     0;...
+%    0     0     0     0     0     0     0     0     0     0    -1     0;...
+%    0     0     0     0     0     0     0     1     0     0     0     h];
+% 
+% FH=[0    -1    -1    mu     0     0     0     0     0     0     0     0;...
+%     1    0     0     0      0     0     0     0     h     0     0     0;...
+%     1    0     0     0      0     0     0     0    -h     0     0     0;...
+%     0    0     0     0      0     0     0     0     0     h^2   0     0;...
+%     0    0     0     0      0    -1    -1     mu     0     0     0     0;...
+%     0    0     0     0      1     0     0     0     0     0     h     0;...
+%     0    0     0     0      1     0     0     0     0     0    -h     0;...
+%     0    0     0     0      0     0     0     0     0     0     0     h^2];
 
-FH=[0    -1    -1    mu     0     0     0     0     0     0     0     0;...
-    1    0     0     0      0     0     0     0     h     0     0     0;...
-    1    0     0     0      0     0     0     0    -h     0     0     0;...
-    0    0     0     0      0     0     0     0     0     h^2   0     0;...
-    0    0     0     0      0    -1    -1     mu     0     0     0     0;...
-    0    0     0     0      1     0     0     0     0     0     h     0;...
-    0    0     0     0      1     0     0     0     0     0    -h     0;...
-    0    0     0     0      0     0     0     0     0     0     0     h^2];
+E=[0     0     0     0     0     0     0     0     1     0     0     0;... %rdot1x
+   0     0     0     0     0     1     0     0     0     h     0     0;...%r1y + h rdot1y
+   0     0     0     0     0     0     0     0     0     0     1     0;...%rdot2x
+   0     0     0     0     0     0     0     1     0     0     0     h];%r2y + h rdot2y
+
+FH=[0    0     0     0      0     0     0     0     h     0     0     0;...%h rddot1x
+    0    0     0     0      0     0     0     0     0     h^2   0     0;...%h^2 rddot1y
+    0    0     0     0      0     0     0     0     0     0     h     0;...%h rddot2x
+    0    0     0     0      0     0     0     0     0     0     0     h^2];%h^2 rddot2y
 
 params.Borth = [E, FH]; % q = Ex + F lambda + H u
 %params.Borth(:, [11, 12]) = eye(params.orthDim);
 params.borth = zeros(params.orthDim, 1);
 
 %Constraint Adelta_delta * Delta + Adelta_int * int >= bdelta
-params.Adelta_delta = [params.Aorth; params.Borth; params.Aorth; -params.Aorth; params.Borth; - params.Borth];
+%params.Adelta_delta = [params.Aorth; params.Borth; params.Aorth; -params.Aorth; params.Borth; - params.Borth];
+params.Adelta_delta = [params.Aorth; params.Aorth; -params.Aorth; params.Borth; - params.Borth];
 
 params.Adelta_int = [zeros(params.orthDim);...  %%Aorth * Z + aorth >= 0
-    zeros(params.orthDim);...  %%Borth * Z + borth >= 0
+    %zeros(params.orthDim);...  %%Borth * Z + borth >= 0
     params.M * eye(params.orthDim);... % - M*i <= Aorth * Z + aorth
     params.M * eye(params.orthDim);... % Aorth * Z  + aorth <= + M*i 
     -params.M * eye(params.orthDim);... % -M*(1-i) <= Borth * Z + borth
     -params.M * eye(params.orthDim)]; % Borth * Z + borth <= M*(1-i)
 
-params.bdelta = [- params.aorth; - params.borth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
+%params.bdelta = [- params.aorth; - params.borth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
+params.bdelta = [- params.aorth; - params.aorth; params.aorth; - params.M * ones(params.orthDim, 1) - params.borth; - params.M * ones(params.orthDim, 1) + params.borth];
 
 %Initialization TODO: Update for implicit formulation
 % initZ = zeros(params.orthDim, params.N - 1);
