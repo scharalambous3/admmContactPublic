@@ -7,9 +7,6 @@ int_k = [];
 ops = sdpsettings('solver','mosek','cachesolvers',1,'verbose',0);
 
 G_k = params.projG_k;
-%For cartpole
-%G_k(end, end) = 0;
-
 
 for i = 1:(N - 1)
     delta = sdpvar(params.dim, 1);
@@ -24,10 +21,13 @@ for i = 1:(N - 1)
     
     constr = [constr, params.Adelta_delta * delta + params.Adelta_int * intVar >= params.bdelta];
 
-    %For biped
-    constr = [constr, [params.Ax zeros(size(params.Ax, 1), params.nu)] * delta >= params.bx];
-    constr = [constr, [zeros(size(params.Au, 1), params.nx) params.Au] * delta >= params.bu];
-
+    if ~isempty(params.Ax)
+        constr = [constr, [params.Ax zeros(size(params.Ax, 1), params.nu)] * delta >= params.bx];
+    end
+    if ~isempty(params.Au)
+        constr = [constr, [zeros(size(params.Au, 1), params.nx) params.Au] * delta >= params.bu];
+    end
+    
     optimize(constr,obj,ops);
     Delta_k = [Delta_k, value(delta)];
     int_k = [int_k, value(intVar)];

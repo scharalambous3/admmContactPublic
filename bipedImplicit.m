@@ -28,7 +28,7 @@ figure(2)
 hax = gca;
 plotPerf(hax, orthViol,objValueVec, primalResidualArr, dualResidualArr, intVars(params.separationIndices, :), X)
 plotStates(intVars(params.separationIndices, :), Z, params);
-plotProj(intVars(params.separationIndices, :),  Z, Delta, params);
+plotSeparation(intVars(params.separationIndices, :),  Z, Delta, params);
 % subplot(3,3,3)
 % plot(1:size(dynViol, 2), vecnorm(dynViol(1:3:end,:),2, 1));
 % xlabel('Iterations')  

@@ -1,5 +1,9 @@
-function [] = plotProj(intVars, Z, Delta, params)
+function [] = plotSeparation(intVars, Z, Delta, params)
 %UNTITLED2 Summary of this function goes here
+if ~isfield(params,'phi1Ndx')
+    plotSeparationAlt(intVars, Z, Delta, params)
+    return;
+end
 h = params.dt;
 timeTraj = 0:params.dt:params.horizon;
 

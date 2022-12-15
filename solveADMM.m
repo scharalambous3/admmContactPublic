@@ -25,11 +25,9 @@ for iter = 1:params.maxIters
        fprintf('Exited at iteration %i. Orthogonality violation norm: %d. Rho: %d \n', iter-1, violNorm, rho) 
        break; 
     end
-    % For cartpole
-    %G_k(params.dim, params.dim) = 0;
 
     %For cartpole (?)
-    %P_k(1:params.nx,1) = 0; %Dual should have no effect on initial state
+    P_k(1:params.nx,1) = 0; %Dual should have no effect on initial state
     
     [Z_k, objValue] = solveConvexSubproblem(Delta_k, P_k, G_k, x_k, params, epsilon);
 
@@ -63,7 +61,7 @@ for iter = 1:params.maxIters
         hax = gca;
         plotPerf(hax, violVec,objValueVec, primalResidualArr, dualResidualArr, int_k(params.separationIndices,:), xTraj)
         plotStates(int_k(params.separationIndices, :), Z_k, params);
-        plotProj(int_k(params.separationIndices, :),  Z_k, Delta_k, params);
+        plotSeparation(int_k(params.separationIndices, :),  Z_k, Delta_k, params);
     end
 end
 

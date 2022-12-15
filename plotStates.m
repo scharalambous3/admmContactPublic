@@ -12,26 +12,6 @@ xlabel('time')
 title('CoM position')
 legend('cx','cy');
 
-subplot(2,4,2)
-plot(timeTraj(1:end-1), Z(params.fn1Ndx, :));
-hold on;
-plot(timeTraj(1:end-1), 100 * Z(params.phi1Ndx, :));
-plotAreas(timeTraj, intVars(1,:));
-hold off
-xlabel('time')
-title('Contact 1 Separation Constraint')
-legend('fN1','100 * phi1');
-
-subplot(2,4,3)
-plot(timeTraj(1:end-1), Z(params.fn2Ndx, :));
-hold on;
-plot(timeTraj(1:end-1), 100 * Z(params.phi2Ndx, :));
-plotAreas(timeTraj, intVars(2,:));
-hold off
-xlabel('time')
-title('Contact 2 Separation Constraint')
-legend('fN2','100 * phi2');
-
 subplot(2,4,4)
 plot(timeTraj(1:end-1), Z(params.fn1Ndx, :));
 hold on;
@@ -51,7 +31,32 @@ hold off
 xlabel('time')
 title('Contact 2 Sliding')
 legend('fN2','100 * vT2');
+
+if ~isfield(params,'phi1Ndx')
+    return;
 end
+
+subplot(2,4,2)
+plot(timeTraj(1:end-1), Z(params.fn1Ndx, :));
+hold on;
+plot(timeTraj(1:end-1), 100 * Z(params.phi1Ndx, :));
+plotAreas(timeTraj, intVars(1,:));
+hold off
+xlabel('time')
+title('Contact 1 Separation Constraint')
+legend('fN1','100 * phi1');
+
+subplot(2,4,3)
+plot(timeTraj(1:end-1), Z(params.fn2Ndx, :));
+hold on;
+plot(timeTraj(1:end-1), 100 * Z(params.phi2Ndx, :));
+plotAreas(timeTraj, intVars(2,:));
+hold off
+xlabel('time')
+title('Contact 2 Separation Constraint')
+legend('fN2','100 * phi2');
+end
+
 function [] = plotAreas(timeTraj, intVars)
 YL = get(gca, 'YLim');
 ind = 1:length(intVars);

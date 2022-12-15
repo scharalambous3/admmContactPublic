@@ -23,8 +23,8 @@ params.liveGraphs = true;
 
 params.X0 = [0; 0.5; 0; 0; -0.25; 0; 0.25; 0; zeros(4, 1)];
 %For jumping
-% xDesMiddle = [0; 1; 0; 0;...
-%     - 0.25; 0.5; 0.25; 0.5; zeros(4, 1)];
+% xDesMiddle = [0; 5; 0; 0;...
+%     - 0.25; 4.5; 0.25; 4.5; zeros(4, 1)];
 % xDesFinal = [0; 0.5; 0; 0; -0.25; 0; 0.25; 0; zeros(4, 1)];
 % params.xDes = repmat(xDesFinal, 1, params.N);
 % midIndex = floor(params.N/2);

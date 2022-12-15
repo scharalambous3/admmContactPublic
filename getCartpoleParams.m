@@ -3,15 +3,18 @@ function [params] = getCartpoleParams()
 %   Detailed explanation goes here
 params.dt = 0.01;
 params.N = 11;
-params.horizon = params.N * params.dt;
-
+params.horizon = (params.N - 1)* params.dt;
+params.epsilon0=1000000;
 params.finalTime = 1.0;
 params.simSteps = params.finalTime/params.dt;
-
+params.convexSubproblemSettings = sdpsettings('solver','osqp','cachesolvers',1,'allownonconvex',0,'osqp.time_limit', 0.001);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
+params.NLInitialization=0;
+params.separationIndices=[1,2];
 params.nx = 4;
 params.nu = 3;
 params.dim = params.nx + params.nu;
 params.animation = false;
+params.liveGraphs = true;
 
 xDesFinal= [0; 0; 0; 0];
 params.xDes = repmat(xDesFinal, 1, params.N);
@@ -22,8 +25,8 @@ mp = 0.411;
 mc = 0.978; 
 len_p = 0.6; 
 len_com = 0.4267; 
-d1 = 0.35;
-d2 = -0.35;
+d1 = 0.39;
+d2 = -0.39;
 ks= 50;
 Ts = 0.01;
 A = [[0, 0, 1, 0]; [0, 0, 0, 1]; [0, g*mp/mc, 0, 0]; [0, g*(mc+mp)/(len_com*mc), 0, 0]];
@@ -43,8 +46,8 @@ params.B = [Dlambda, Bu];
 
 params.M=1000;
 
-params.Q = [[10, 0, 0, 0]; [0, 3, 0, 0]; [0, 0, 1, 0]; [0, 0, 0, 1]];
-params.R = diag([0, 0, 1]);
+params.Q = 2* [[10, 0, 0, 0]; [0, 3, 0, 0]; [0, 0, 1, 0]; [0, 0, 0, 1]];
+params.R = 2* diag([0, 0, 1]);
 params.Qf = idare(params.A, Bu, params.Q, 1,[],[]); % 1 is for the u part only (ie w/o lambda part)
 
 
@@ -54,6 +57,8 @@ params.rho = 0.2; %to meet 0.2/2 = 0.1 of Posa's code
 params.rhoScale = 2;
 params.maxIters=10;
 
+params.projG_k = blkdiag(1000 * eye(params.nx), eye(2), eye(1));
+params.G0 = 2 * (params.rho/2) * eye(params.dim, params.dim);
 
 params.Ax = [];
 params.bx = [];
