@@ -28,14 +28,14 @@ params.epsDyn = 1e-16;
 %params.rho = 0.2/1000;
 params.rho = 1;
 params.rhoScale = 2;
-params.maxIters= 30;
+params.maxIters= 60;
 params.epsilon0 = 100;
 %The state, fx1 and fx2 do not enter the orthogonality constraint
 %In the projection subproblem I need nonzero entries in G to retun non-NaNs
 %params.projG_k = blkdiag(eye(params.nx), eye(params.nu));
-projGfiN = 10;
-projGrdoti = 100000;
-projGrddoti = 1000;
+projGfiN = 1;
+projGrdoti = 10000;
+projGrddoti = 100;
 params.projG_k = eye(params.dim);
 params.projG_k([12,16], [12,16]) = diag([projGfiN, projGfiN]);
 params.projG_k(7:8, 7:8) = diag([projGrdoti, projGrdoti]);
@@ -44,8 +44,8 @@ params.projG_k(17:18, 17:18) = diag([projGrddoti, projGrddoti]);
 %The elements of omega and delta corresponding to these are irrelevant by
 %setting the respective weights in G to 0
 GfiN = 1;
-Grdoti = 100;
-Grddoti = 10;
+Grdoti = 1000;
+Grddoti = 100;
 params.G0 = (params.rho/2) * eye(params.dim);
 %params.G0([12,16], [12,16]) = diag([GfiN, GfiN]);
 %params.G0(7:8, 7:8) = diag([Grdoti, Grdoti]);
@@ -57,9 +57,9 @@ m=10.0;
 params.m = m;
 params.I = (params.m/12) * (0.75^2 + 0.5^2);
 
-params.Q = diag([50000, 50000, 1000, 1000, 0, 0, 1, 1]);
+params.Q = diag([50000, 50000, 1000, 1000, 0, 0, 1000, 1000]);
 %params.R = diag([zeros(1, 1), 1, 1, 0.01, zeros(1, 1), 1, 1, 0.01 , 0.05, 0.05, 0.05, 0.05]);
-params.R = diag([1, 1, 1, 0.1, 1, 1, 1, 0.1, 0.01, 0.01]); %cost on lambda1 and lambda5 s.t. it doesnt return NaNs
+params.R = diag([1, 1, 1, 0.1, 1, 1, 1, 0.1, 5, 5]); %cost on lambda1 and lambda5 s.t. it doesnt return NaNs
 %params.Qf = idare(params.A, params.B, params.Q, params.R,[],[]);
 params.Qf = params.Q;
 params.RInt = diag([1, 1]);
@@ -115,12 +115,13 @@ params.bx = [-0.35; 0.15; -0.35; 0.15;xDesFinal(2) - 0.15; - xDesFinal(2) - 0.15
 mu=0.7;
 params.mu = mu;
 %unilateral force constraint Au * U >= bu.  
-params.Au = zeros(10, params.nu);
+params.Au = zeros(12, params.nu);
 params.Au(1:6,[2, 3, 4, 6, 7, 8]) = eye(6); % f>=0 for T-, T+ and N
 params.Au(7,[2,3,4]) = [-1, -1, mu]; %friction cone for contact 1
 params.Au(8,[6,7,8]) = [-1, -1, mu]; %friction cone for contact 1
 params.Au(9:10,[4, 8]) = -eye(2); % force limits
-params.bu = [zeros(8, 1); -150; -150];
+params.Au(11:12,[9, 10]) = -eye(2); % rddot limits
+params.bu = [zeros(8, 1); -150; -150; -5; -5];
 
 % params.AxTerminal = zeros(6,params.nx);
 % params.AxTerminal(:, [6,8,9,10,11,12]) = eye(6);
@@ -198,4 +199,6 @@ params.fn1Ndx = params.nx + 4;
 params.fn2Ndx = params.nx + 8;
 params.vT1Ndx = 7;
 params.vT2Ndx = 8;
+params.vDotT1Ndx = params.nx + 9;
+params.vDotT2Ndx = params.nx + 10;
 end
