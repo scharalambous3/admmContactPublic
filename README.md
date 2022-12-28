@@ -9,7 +9,7 @@ Extends prior work, *Aydinoglu, Alp, and Michael Posa. "Real-time multi-contact 
 
 ## Results
 *These results are obtained using modifications to the original work. These modifications are currently private*
-<p style="text-align:center;"><img src="https://github.com/scharalambous3/admmContactPublic/blob/main/results.png" alt="Logo"></p>
+<p style="text-align:center;"><img src="https://github.com/scharalambous3/admmContactPublic/blob/master/results.png" alt="Logo"></p>
 
 **Functions**:
 - projectionSubproblem: Project solution of QP onto the linear complementarity constraints
