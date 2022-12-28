@@ -6,3 +6,4 @@ plots/
 temp/
 *.asv
 *.mat
+test/
