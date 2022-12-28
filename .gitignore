@@ -2,7 +2,7 @@ gif.m
 *.gif
 *.jpg
 *.jpeg
-plots/
+archive/
 temp/
 *.asv
 *.mat
