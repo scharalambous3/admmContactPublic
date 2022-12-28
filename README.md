@@ -1,5 +1,5 @@
 # Alternating Direction Method of Multipliers (ADMM)
-Implementation of ADMM for the following multi-contact systems:
+Extends prior work, *Aydinoglu, Alp, and Michael Posa. "Real-time multi-contact model predictive control via admm." 2022 International Conference on Robotics and Automation (ICRA). IEEE, 2022.*, for use of ADMM for multi-contact systems. Currently implemented:
 (1) finger gaiting, (2) cart-pole with soft walls, (3) 2D floating base, and (4) an alternative formulation of 2D floating base
 
 ## Features
@@ -7,6 +7,9 @@ Implementation of ADMM for the following multi-contact systems:
 - Implicit time-stepping is used for modelling (1) and (4) 
 - Calculation of primal and dual residuals for monitoring convergence
 
+## Results
+*These results are obtained using modifications to the original work. These modifications are currently private*
+<p style="text-align:center;"><img src="https://github.com/scharalambous3/admmContactPublic/blob/main/results.png" alt="Logo"></p>
 
 **Functions**:
 - projectionSubproblem: Project solution of QP onto the linear complementarity constraints
