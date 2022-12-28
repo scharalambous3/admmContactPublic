@@ -1,6 +1,6 @@
 function [params] = getGaitingParams()
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
+%getGaitingParams Params for finger gaiting
+
 params.dt = 0.1;
 params.N = 10;
 params.horizon = params.N * params.dt;

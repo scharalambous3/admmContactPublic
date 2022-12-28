@@ -1,6 +1,8 @@
 function [params] = getBipedParams()
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
+%getBipedParams Get params for 2D floating base system with 2 contacts,
+%linear dynamics, quadratic state-input cost
+%Separation and sliding complementarity constraints 
+
 params.dt = 0.05;
 params.N = 51;
 params.horizon = (params.N - 1) * params.dt;

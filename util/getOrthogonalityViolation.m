@@ -1,6 +1,7 @@
 function [viol] = getOrthogonalityViolation(Z_k, params)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%getOrthogonalityViolation Returns violation of orthogonality constraint of
+%complementarity constraint
+
 N = size(Z_k, 2) + 1;
 viol = 0;
 for i = 1:(N - 1)

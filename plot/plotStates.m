@@ -1,5 +1,6 @@
 function [] = plotStates(intVars, Z, params)
-%UNTITLED2 Summary of this function goes here
+%plotStates Plots state variables involved in complementarity constraints
+
 timeTraj = 0:params.dt:params.horizon;
 figure(3)
 subplot(2,4,1)
@@ -12,6 +13,9 @@ xlabel('time')
 title('CoM position')
 legend('cx','cy');
 
+if ~isfield(params,'fn1Ndx')
+    return;
+end
 subplot(2,4,4)
 plot(timeTraj(1:end-1), Z(params.fn1Ndx, :));
 hold on;

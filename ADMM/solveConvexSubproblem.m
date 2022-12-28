@@ -1,6 +1,7 @@
 function [Z_k, objValue] = solveConvexSubproblem(Delta_k, P_k, G_k, x_k, params, epsilon)
-%UNTITLED4 Summary of this function goes here
-%   Detailed explanation goes here
+%solveConvexSubproblem Solve convex subproblem (QP since linear
+%complementarity constraints are not included here)
+
 Q=params.Q; Qf=params.Qf; R=params.R; N=params.N;
 
 ops = params.convexSubproblemSettings;

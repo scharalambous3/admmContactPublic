@@ -1,8 +1,12 @@
 function [] = plotSeparationAlt(intVars, Z, Delta, params)
-%UNTITLED2 Summary of this function goes here
+%plotSeparation Plots variables involved in separation complementarity
+%constraint for the alternative formulation of ___Alt.m
 
 h = params.dt;
 timeTraj = 0:params.dt:params.horizon;
+if ~isfield(params,'fn1Ndx')
+    return;
+end
 
 figure(4)
 subplot(2,4,1)

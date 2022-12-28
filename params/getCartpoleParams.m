@@ -1,13 +1,13 @@
 function [params] = getCartpoleParams()
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
+%getCartpoleParams Params for cart-pole with soft walls
+
 params.dt = 0.01;
 params.N = 11;
 params.horizon = (params.N - 1)* params.dt;
 params.epsilon0=1000000;
 params.finalTime = 1.0;
 params.simSteps = params.finalTime/params.dt;
-params.convexSubproblemSettings = sdpsettings('solver','osqp','cachesolvers',1,'allownonconvex',0,'osqp.time_limit', 0.001);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
+params.convexSubproblemSettings = sdpsettings('solver','osqp','cachesolvers',1,'allownonconvex',0,'osqp.time_limit', 0.1);%, 'snopt.Iterations_limit', 500);%, 'osqp.time_limit', 0.01);
 params.NLInitialization=0;
 params.separationIndices=[1,2];
 params.nx = 4;
@@ -18,16 +18,16 @@ params.liveGraphs = true;
 
 xDesFinal= [0; 0; 0; 0];
 params.xDes = repmat(xDesFinal, 1, params.N);
-params.X0 =[0.3; 0; 0.3; 0];
+params.X0 =[0.3; 3; 0.3; 0];
 
 g = 9.81;
 mp = 0.411; 
 mc = 0.978; 
 len_p = 0.6; 
 len_com = 0.4267; 
-d1 = 0.39;
-d2 = -0.39;
-ks= 50;
+d1 = 0.35;
+d2 = -0.35;
+ks= 100;
 Ts = 0.01;
 A = [[0, 0, 1, 0]; [0, 0, 0, 1]; [0, g*mp/mc, 0, 0]; [0, g*(mc+mp)/(len_com*mc), 0, 0]];
 B = [0;0;1/mc;1/(len_com*mc)];

@@ -1,5 +1,6 @@
 function [] = plotSeparation(intVars, Z, Delta, params)
-%UNTITLED2 Summary of this function goes here
+%plotSeparation Plots variables involved in separation complementarity
+%constraint
 if ~isfield(params,'phi1Ndx')
     plotSeparationAlt(intVars, Z, Delta, params)
     return;

@@ -1,6 +1,9 @@
 function [params] = getBipedParamsImplicitAlt()
-%UNTITLED3 Summary of this function goes here
-%   Detailed explanation goes here
+%getBipedParamsImplicitAlt Get params for 2D floating base system with 2 contacts,
+%linear dynamics, quadratic state-input cost, using implicit time-stepping
+%Complementarity constraints between contact velocity and normal contact
+%force
+
 params.dt = 0.05;
 params.N = 51;
 params.groupingN  = 0.25/params.dt;

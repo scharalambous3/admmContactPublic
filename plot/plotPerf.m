@@ -1,5 +1,8 @@
 function [] = plotPerf(hax, orthViol,objValueVec, primalResidualArr, dualResidualArr, intVars, xTraj)
-%UNTITLED2 Summary of this function goes here
+%plotPerf Plots metrics (orthogonality violation, objective value of given
+%state trajectory, primal and dual residuals), trajectory of state
+%variables and boolean assignment of the integer decision variables
+
 figure(2)
 subplot(5,2,1)
 semilogy(1:size(orthViol, 2), orthViol);

@@ -1,4 +1,6 @@
 function drawFloatingBase(hax, c, f, xDes, rc1, rc2)
+%drawFloatingBase Visualization for multi-contact floating base system
+
 W = 0.75;  % cart width
 H = .5; % cart height
 figure(3)

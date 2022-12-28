@@ -1,6 +1,7 @@
 function [Delta_k, int_k] = projectionSubproblem(Z_k, P_k, params, ~)
-%UNTITLED4 Summary of this function goes here
-% Detailed explanation goes here
+%projectionSubproblem Project solution of QP onto the linear
+%complementarity constraints
+
 N = params.N;
 Delta_k = [];
 int_k = [];

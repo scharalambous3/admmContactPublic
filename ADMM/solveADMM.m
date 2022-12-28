@@ -1,6 +1,7 @@
 function [Z_k,Delta_k, int_k, violVec, objValueVec, primalResidualArr, dualResidualArr] = solveADMM(Delta0, P0, G0, x_k, params)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%solveADMM Iterate through convex subproblem, projection and dual update
+%until convergence or max iterations
+
 Delta_k = Delta0;
 Z_k = [];
 P_k = P0;
@@ -20,6 +21,7 @@ int_k = [];
 
 PVec = [];
 viol = inf;
+
 for iter = 1:params.maxIters
     if (viol <= params.epsDyn)
        fprintf('Exited at iteration %i. Orthogonality violation norm: %d. Rho: %d \n', iter-1, violNorm, rho) 

@@ -1,6 +1,7 @@
 function [xTraj, uTraj, cost] = getRollout(Z_k, x_k, params)
-%UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%getRollout Returns state and input trajectories from rollout of solution
+%from convex subproblem
+
 cost = 0;
 
 nx = params.nx; nu = params.nu; Q = params.Q; Qf = params.Qf; R = params.R; N = params.N;

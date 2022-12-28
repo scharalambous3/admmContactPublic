@@ -1,6 +1,7 @@
 function [Delta_k, int_k] = projectionSubproblemGrouping(Z_k, P_k, params, prevInt_k)
-%UNTITLED4 Summary of this function goes here
-% Detailed explanation goes here
+%projectionSubproblemGrouping Project solution of QP onto the linear
+%complementarity constraints. Includes grouping of integer decision
+%variables
 N = params.N;
 Delta_k = [];
 int_k = [];
